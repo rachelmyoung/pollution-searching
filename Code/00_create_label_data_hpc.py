@@ -9,6 +9,7 @@ import geopandas as gpd
 import rasterio.features
 import matplotlib.pyplot as plt
 import requests
+import sys
 
 from rasterio.mask import mask
 from rasterio.merge import merge
@@ -25,22 +26,32 @@ from datetime import datetime
 
 ###### --- PARAMETERS --- ######
 
+# I will eventually make each of these a Series and then iterate through them so we can do multiple types at once/
+# It might make more sense to write a shell script that runs this script multiple times with different values for the parameters.
+
 ### RESOLUTION ###
-res: float = 0.01 # 0.1, 0.01, or 0.005
+res = float(sys.argv[1]) # 0.1, 0.01, or 0.005
+print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
 
 ### GEOGRAPHICAL AREA ###
-location: str = "Minnesota" # Minnesota or US currently supported.
-
+location = str(sys.argv[2]) # Minnesota or US currently supported.
+print("Location value is " + str(location) + " and the type is " + str(type(location)))
+      
+      
 ### PARCEL CORRECTION ###
 # determines whether or not we use the centroids of property parcels that overlap with POIs or just the locations of POIs
 # currently only supported for the state of Minnesota
-parcel_check = False
+if sys.argv[3]=="True":
+    parcel_check = True
+else:
+    parcel_check = False
 
+print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
+      
 ### DIRECTORY ###
 # This should almost never need to change 
 base_directory = "/projects/standard/rmyoung/shared/mosaiks"
 scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
-
 
 
 
@@ -64,6 +75,7 @@ elif res == 0.005:
 
 ###  GEOGRAPHICAL AREA LOGIC ###
 
+file_suffix = file_suffix + "_" + location
 if location == "Minnesota":
     poi_path = base_directory + "/raw/mn_superfund_spreadsheet.csv"
     parcel_path = base_directory + "/mn_parcels/mn_parcels.gpkg" 
@@ -74,13 +86,18 @@ else:
 project_file = os.path.basename(poi_path)
 project_file = os.path.splitext(project_file)[0]
 
+if parcel_check==True:
+    file_suffix = file_suffix + "_parcels"
+else:
+    file_suffix = file_suffix + "_noparcels"
+    
 ### LOCATION OF OUTPUT FILES ###
 # This shouldn't change often if being run on HPC
 
 output_path = base_directory + "/output"
 
 # this will make it less likely people working concurrently will overwrite each other's work
-file_suffix = file_suffix + "_" + str(date.today()) + "_" + str(datetime.now().hour) + str(datetime.now().minute)
+#file_suffix = file_suffix + "_"+ str(date.today()) + "_" + str(datetime.now().hour) + str(datetime.now().minute)
 
 
 
@@ -615,7 +632,7 @@ region_grid_gdf['lat_lon_key'] = region_grid_gdf['lat'].astype(str) + '_' + regi
 # Get the list of keys that are already positive
 positive_keys = labels_positive['lat_lon_key'].unique()
 # Filter the full grid to find all rows that ARE NOT in the positive list
-labels_negative = regiona_grid_gdf[~region_grid_gdf['lat_lon_key'].isin(positive_keys)].copy()
+labels_negative = region_grid_gdf[~region_grid_gdf['lat_lon_key'].isin(positive_keys)].copy()
 print(f"Found {len(labels_negative)} negative (0s) rows.")
 
 ### USER INPUT: PERCENT OF NEGATIVES TO POSITIVES IN DECIMAL FORM###
@@ -689,3 +706,5 @@ print(final_labels.head())
 ##### ----- SAVE THE COMBINED LABELS ----- #####
 combined_lables_filename = base_directory + "/output/" + project_file + "_combinedlabels" + file_suffix + ".csv"
 labels_df.to_csv(combined_lables_filename, index=False)
+
+print("Label creation complete!")
