@@ -27,7 +27,6 @@ from decimal import Decimal
 # I will eventually make each of these a Series and then iterate through them so we can do multiple types at once/
 
 ### ACCEPTING ARGUMENTS FROM SHELL SCRIPT ###
-# This is going into a dataframe that's saved as a csv so other scripts in the workflow can access it.
 
 ### DIRECTORY ###
 # This should almost never need to change
@@ -579,7 +578,7 @@ print("======SEEING WHY THERE ARE NO ZEROS======")
 print("pois_grid_count stuff:")
 print(pois_grid_count.head())
 
-
+'''
 ### ----- CONFIGURE POSITIVE AND NEGATIVE LABELS ----- ###
 #CREATE 1s AND 0s
 
@@ -686,3 +685,4 @@ explore_final_labels = gpd.GeoDataFrame(
 
 map_test = explore_final_labels.explore()
 map_test.save(map_test_filename)
+'''
