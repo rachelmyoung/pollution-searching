@@ -27,10 +27,15 @@ Once this code runs, it will generate a series of .csv files that save to the hi
 You will see these .csv files slowly populate in your G Drive folder. This code will say "complete" before those files fully populate, so after completing this code you'll have to wait a few extra minutes to make sure all files are there. This is because GEE is working in the background to generate the results. The final line of this code will tell you how many files it intends to create, so you can check when GEE is done generating files. You can also track the progress of file generation in the GEE website interface.
 """
 
-# Commented out IPython magic to ensure Python compatibility.
-# %pip install geemap
 
-# import geemap
+
+
+##### ===== TEST GEE CONNECTION ===== #####
+ee.Authenticate(auth_mode='localhost')
+ee.Initialize(project=GEE_project) #insert GEE project name here
+
+
+import geemap
 import ee
 import numpy as np
 import os
