@@ -30,7 +30,7 @@ You will see these .csv files slowly populate in your G Drive folder. This code 
 # Commented out IPython magic to ensure Python compatibility.
 # %pip install geemap
 
-import geemap
+# import geemap
 import ee
 import numpy as np
 import os
