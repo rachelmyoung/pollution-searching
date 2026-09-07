@@ -22,8 +22,6 @@ from datetime import datetime
 from decimal import Decimal
 
 
-print("GIT TEST SUCCESS")
-
 ###### --- PARAMETERS --- ######
 # We don't need to change parameters in this script anymore; they can be passed from the shell script.
 # I will eventually make each of these a Series and then iterate through them so we can do multiple types at once/
@@ -427,7 +425,7 @@ if 'df' in locals():
 
         ## SAVE THE FINAL LABELS
 
-        output_filename = scratch_directory + '/' + project_file + '_finallabels' + file_suffix + '.csv'
+        output_filename = scratch_directory + '/' + project_file + '_finallabels' + '.csv'
 
         labels_df.to_csv(output_filename, index=False)
 
@@ -671,19 +669,14 @@ print(final_labels.head())
 
 
 ##### ----- SAVE THE COMBINED LABELS ----- #####
-combined_labels_filename = base_directory + "/output/" + project_file + "_combinedlabels" + file_suffix + ".csv"
+combined_labels_filename = base_directory + "/output/" + project_file + "_combinedlabels" + ".csv"
 final_labels.to_csv(combined_labels_filename, index=True)
 
 print("Label creation complete!")
 
-#### ----- OUTPUT THE FILE DIRECTORY SO FEATURIZATION CODE CAN ACCESS IT ----- ####
-
-with open("final_labels_directory" + file_suffix + ".txt", "w", encoding="utf-8") as file:
-    file.write(str(combined_labels_filename))
-
 
 ##### ----- PRINT TEST MAP ----- #####
-map_test_filename = base_directory + "/output/" + project_file + "_combinedlabels" + file_suffix + ".html"
+map_test_filename = base_directory + "/output/" + project_file + "_interactivemap" + ".html"
 
 explore_final_labels = gpd.GeoDataFrame(
     final_labels,
