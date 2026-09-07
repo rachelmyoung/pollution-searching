@@ -19,89 +19,61 @@ from matplotlib.patches import Rectangle
 from shapely.geometry import box, Polygon, MultiPolygon, GeometryCollection
 from datetime import date
 from datetime import datetime
-
+from decimal import Decimal
 
 
 
 
 ###### --- PARAMETERS --- ######
-
+# We don't need to change parameters in this script anymore; they can be passed from the shell script.
 # I will eventually make each of these a Series and then iterate through them so we can do multiple types at once/
-# It might make more sense to write a shell script that runs this script multiple times with different values for the parameters.
 
-### RESOLUTION ###
-res = float(sys.argv[1]) # 0.1, 0.01, or 0.005
-print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
+### ACCEPTING ARGUMENTS FROM SHELL SCRIPT ###
+# This is going into a dataframe that's saved as a csv so other scripts in the workflow can access it.
 
-### GEOGRAPHICAL AREA ###
-location = str(sys.argv[2]) # Minnesota or US currently supported.
-print("Location value is " + str(location) + " and the type is " + str(type(location)))
-      
-      
-### PARCEL CORRECTION ###
-# determines whether or not we use the centroids of property parcels that overlap with POIs or just the locations of POIs
-# currently only supported for the state of Minnesota
-if sys.argv[3]=="True":
-    parcel_check = True
-else:
-    parcel_check = False
+parameters_dictionary = {
+    "resolution": float(sys.argv[1]),
+    "location": str(sys.argv[2]),
+    "parcel_correction": str(sys.argv[3]),
+    "negatives": float(sys.argv[4])
+}
 
-print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
-      
-### DIRECTORY ###
-# This should almost never need to change 
-base_directory = "/projects/standard/rmyoung/shared/mosaiks"
-scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
+parameters_df = pd.DataFrame(parameters_dictionary)
 
+res = parameters_df["resolution"]
+location = parameters_df["location"]
+parcel_check = parameters_df["parcel_correction"].lower() == "true"
+zeroes = parameters_df["negatives"]
 
-
-
-##### ----- PARAMETER LOGIC ----- #####
-# You generally only need to change parameters, and can ignore this for most configring.
-
-### RESOLUTION LOGIC ###
+res_string = str(res)
 
 buff = (res*5)/10
+round_value = (Decimal(res_string).as_tuple().exponent) + 1
 
-if res == 0.1:
-  round_value: int = 2
-  file_suffix = "_1"
-elif res == 0.01:
-  round_value: int = 3
-  file_suffix = "_01"
-elif res == 0.005:
-  round_value: int = 4
-  file_suffix = "_005"
-
-###  GEOGRAPHICAL AREA LOGIC ###
-
-file_suffix = file_suffix + "_" + location
 if location == "Minnesota":
     poi_path = base_directory + "/raw/mn_superfund_spreadsheet.csv"
-    parcel_path = base_directory + "/mn_parcels/mn_parcels.gpkg" 
+    parcel_path = base_directory + "/mn_parcels/mn_parcels.gpkg"
 
 else:
     poi_path = base_directory + "/raw/federal_superfund_spreadsheet.csv"
-    
-project_file = os.path.basename(poi_path)
-project_file = os.path.splitext(project_file)[0]
 
-if parcel_check==True:
-    file_suffix = file_suffix + "_parcels"
-else:
-    file_suffix = file_suffix + "_noparcels"
-    
-### LOCATION OF OUTPUT FILES ###
-# This shouldn't change often if being run on HPC
-
+### DIRECTORY ###
+# This should almost never need to change
+base_directory = "/projects/standard/rmyoung/shared/mosaiks"
+scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
 output_path = base_directory + "/output"
 
-# this will make it less likely people working concurrently will overwrite each other's work
-#file_suffix = file_suffix + "_"+ str(date.today()) + "_" + str(datetime.now().hour) + str(datetime.now().minute)
+project_file = location + res_string.replace('.','_') + "_" + str(zeroes*100)
 
 
+print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
+print("Location value is " + str(location) + " and the type is " + str(type(location)))
+print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
 
+##### ----- SAVE THE PARAMETERS ----- #####
 
+#parameters_filename = base_directory + "/output/" + project_file + "_parameters" + file_suffix + ".csv"
+#parameters_df.to_csv(parameters_filename, index=False)
 
 ###### ----- FUNCTIONS ----- ######
 
@@ -387,9 +359,9 @@ else:
     print(f"Shape (row, col): {region_gdf.shape}")
 
     region_gdf[["id", "name", "geometry"]]
-    
+
     print(f"Shape (row, col): {region_gdf_gdf.shape}")
-    
+
 ### CREATING THE GRID ###
 region_grid = create_grid(
     region_gdf,
@@ -480,8 +452,8 @@ if 'df' in locals():
 
 else:
     print("--- ERROR ---")
-    
-    
+
+
 ### TAKES THE SAVED CSV OF LABELS AND CREATES A DATAFRAME
 usa_pois_gdf = pd.read_csv(output_filename)
 
@@ -563,7 +535,7 @@ print(pois_grid.head())
 
 # GET STATS ON AND CHECK VALIDITY OF PARCEL TO POI FIX
 if parcel_check==True:
- 
+
   print("summary statistics")
   minnesota_summary = create_distance_summary(pois_and_parcels_grid, 26915)
   print(minnesota_summary.head())
@@ -584,9 +556,9 @@ if parcel_check==True:
   parcel_evaluation_summary.to_csv(parcel_save_location)
 
 
-    
-    
-    
+
+
+
 ### ----- CREATE LABEL SUMMARY ----- ###
 # From MOSAIKS: "We then group the labels by the grid cell and count the number of labels in each grid cell. This will be our label summary."
 # Group by grid cell (using lat/lon) and fclass, then count
@@ -609,10 +581,12 @@ pois_grid_count = gpd.GeoDataFrame(
     crs="EPSG:4326",
 )
 pois_grid_count.geometry = pois_grid_count.geometry.buffer(buff, cap_style=3)
-pois_grid_count
+#pois_grid_count
 
 
-
+print("======SEEING WHY THERE ARE NO ZEROS======")
+print("pois_grid_count stuff:")
+print(pois_grid_count.head())
 
 
 ### ----- CONFIGURE POSITIVE AND NEGATIVE LABELS ----- ###
@@ -636,7 +610,7 @@ labels_negative = region_grid_gdf[~region_grid_gdf['lat_lon_key'].isin(positive_
 print(f"Found {len(labels_negative)} negative (0s) rows.")
 
 ### USER INPUT: PERCENT OF NEGATIVES TO POSITIVES IN DECIMAL FORM###
-percent_negatives = 0.1 #(in decimal format; so if you want 50% additional 0s you would input 0.5 here. You can also put 0.)
+percent_negatives = zeroes #(in decimal format; so if you want 50% additional 0s you would input 0.5 here. You can also put 0.)
 
 #Determine negative sample size
 sample_size = len(labels_positive) * (percent_negatives)
@@ -704,7 +678,25 @@ print(final_labels.head())
 
 
 ##### ----- SAVE THE COMBINED LABELS ----- #####
-combined_lables_filename = base_directory + "/output/" + project_file + "_combinedlabels" + file_suffix + ".csv"
-labels_df.to_csv(combined_lables_filename, index=False)
+combined_labels_filename = base_directory + "/output/" + project_file + "_combinedlabels" + file_suffix + ".csv"
+final_labels.to_csv(combined_labels_filename, index=True)
 
 print("Label creation complete!")
+
+#### ----- OUTPUT THE FILE DIRECTORY SO FEATURIZATION CODE CAN ACCESS IT ----- ####
+
+with open("final_labels_directory" + file_suffix + ".txt", "w", encoding="utf-8") as file:
+    file.write(str(combined_labels_filename))
+
+
+##### ----- PRINT TEST MAP ----- #####
+map_test_filename = base_directory + "/output/" + project_file + "_combinedlabels" + file_suffix + ".html"
+
+explore_final_labels = gpd.GeoDataFrame(
+    final_labels,
+    geometry=gpd.points_from_xy(final_labels.lon, final_labels.lat),
+    crs="EPSG:4326",
+)
+
+map_test = explore_final_labels.explore()
+map_test.save(map_test_filename)
