@@ -28,13 +28,6 @@ You will see these .csv files slowly populate in your G Drive folder. This code 
 """
 
 
-
-
-##### ===== TEST GEE CONNECTION ===== #####
-ee.Authenticate(auth_mode='localhost')
-ee.Initialize(project=GEE_project) #insert GEE project name here
-
-
 import geemap
 import ee
 import numpy as np
