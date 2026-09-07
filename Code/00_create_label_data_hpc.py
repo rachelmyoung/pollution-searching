@@ -22,7 +22,7 @@ from datetime import datetime
 from decimal import Decimal
 
 
-
+print("GIT TEST SUCCESS")
 
 ###### --- PARAMETERS --- ######
 # We don't need to change parameters in this script anymore; they can be passed from the shell script.
@@ -31,19 +31,17 @@ from decimal import Decimal
 ### ACCEPTING ARGUMENTS FROM SHELL SCRIPT ###
 # This is going into a dataframe that's saved as a csv so other scripts in the workflow can access it.
 
-parameters_dictionary = {
-    "resolution": float(sys.argv[1]),
-    "location": str(sys.argv[2]),
-    "parcel_correction": str(sys.argv[3]),
-    "negatives": float(sys.argv[4])
-}
+### DIRECTORY ###
+# This should almost never need to change
+base_directory = "/projects/standard/rmyoung/shared/mosaiks"
+scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
+output_path = base_directory + "/output"
 
-parameters_df = pd.DataFrame(parameters_dictionary)
 
-res = parameters_df["resolution"]
-location = parameters_df["location"]
-parcel_check = parameters_df["parcel_correction"].lower() == "true"
-zeroes = parameters_df["negatives"]
+res = float(sys.argv[1])
+location = str(sys.argv[2])
+parcel_check = str(sys.argv[3]).lower() == "true"
+zeroes = float(sys.argv[4])
 
 res_string = str(res)
 
@@ -57,12 +55,7 @@ if location == "Minnesota":
 else:
     poi_path = base_directory + "/raw/federal_superfund_spreadsheet.csv"
 
-### DIRECTORY ###
-# This should almost never need to change
-base_directory = "/projects/standard/rmyoung/shared/mosaiks"
-scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
-output_path = base_directory + "/output"
-
+#NAMING THE FILE
 project_file = location + res_string.replace('.','_') + "_" + str(zeroes*100)
 
 
