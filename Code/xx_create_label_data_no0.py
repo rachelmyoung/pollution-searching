@@ -588,9 +588,8 @@ print(pois_grid_count.head())
 
 # THIS IS WHERE WE SAVE OUR OUPUTS
 
+pois_grid_count_name = output_path + '/' + project_file + "_pois_grid_count" + ".gpkg"
+region_grid_gdf_name = output_path + '/' + project_file + "_region_grid_gdf" + ".gpkg"
 
-pois_grid_count_name = output_path + '/' + project_file + "_pois_grid_count" + ".csv"
-region_grid_gdf_name = output_path + '/' + project_file + "_region_grid_gdf" + ".csv"
-
-pois_grid.to_csv(pois_grid_count_name, index=False)
-region_grid_gdf.to_csv(region_grid_gdf_name, index=False)
+pois_grid_count.to_file(pois_grid_count_name , driver="GPKG")
+region_grid_gdf.to_file(region_grid_gdf_name , driver="GPKG")
