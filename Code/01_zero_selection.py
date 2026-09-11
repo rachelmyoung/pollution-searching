@@ -74,9 +74,6 @@ region_grid_gdf_name = output_path + '/' + project_file + "_region_grid_gdf" + "
 pois_grid_count = gpd.read_file(pois_grid_count_name)
 region_grid_gdf = gpd.read_file(region_grid_gdf_name)
 
-print("pois_grid_count table is" + pois_grid_count.head())
-print("region_grid_gdf table is" + region_grid_gdf.head())
-
 
 ### ----- CONFIGURE POSITIVE AND NEGATIVE LABELS ----- ###
 #CREATE 1s AND 0s
