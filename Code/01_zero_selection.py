@@ -50,7 +50,7 @@ else:
 res_string = str(res)
 
 buff = (res*5)/10
-round_value = (Decimal(res_string).as_tuple().exponent) * -1
+round_value = abs((Decimal(res_string).as_tuple().exponent) - 1)
 
 if location == "Minnesota":
     poi_path = base_directory + "/raw/mn_superfund_spreadsheet.csv"
