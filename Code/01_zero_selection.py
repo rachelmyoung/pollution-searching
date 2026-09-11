@@ -69,8 +69,9 @@ print("Parcel check value is " + str(parcel_check) + " and the type is " + str(t
 
 
 
-pois_grid_count_name = scratch_directory + '/' + project_file + "_pois_grid_count" + ".csv"
-region_grid_gdf_name = scratch_directory + '/' + project_file + "_region_grid_gdf" + ".csv"
+pois_grid_count_name = output_path + '/' + project_file + "_pois_grid_count" + ".csv"
+region_grid_gdf_name = output_path + '/' + project_file + "_region_grid_gdf" + ".csv"
+
 
 pois_grid_count = gpd.read_file(pois_grid_count_name)
 region_grid_gdf = gpd.read_file(region_grid_gdf_name)
