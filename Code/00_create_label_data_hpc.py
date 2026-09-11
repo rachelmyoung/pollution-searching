@@ -22,6 +22,8 @@ from datetime import datetime
 from decimal import Decimal
 
 
+debug: bool = True
+
 ###### --- PARAMETERS --- ######
 # We don't need to change parameters in this script anymore; they can be passed from the shell script.
 # I will eventually make each of these a Series and then iterate through them so we can do multiple types at once/
@@ -34,11 +36,17 @@ base_directory = "/projects/standard/rmyoung/shared/mosaiks"
 scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
 output_path = base_directory + "/output"
 
+if debug == True:
+    res = 0.1
+    location = "Minnesota"
+    parcel_check = False
+    zeroes = 1.0
 
-res = float(sys.argv[1])
-location = str(sys.argv[2])
-parcel_check = str(sys.argv[3]).lower() == "true"
-zeroes = float(sys.argv[4])
+else:
+    res = float(sys.argv[1])
+    location = str(sys.argv[2])
+    parcel_check = str(sys.argv[3]).lower() == "true"
+    zeroes = float(sys.argv[4])
 
 res_string = str(res)
 
