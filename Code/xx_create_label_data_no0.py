@@ -588,17 +588,6 @@ print(pois_grid_count.head())
 
 # THIS IS WHERE WE SAVE OUR OUPUTS
 
-### ----- CONFIGURE POSITIVE AND NEGATIVE LABELS ----- ###
-#CREATE 1s AND 0s
-
-#PREPARE POSITIVE LABELS (the 1s)
-labels_positive = pois_grid_count.rename(columns={"superfund": "indicator"})
-labels_positive['indicator'] = 1
-# Create a unique 'lat_lon_key'
-labels_positive['lat_lon_key'] = labels_positive['lat'].astype(str) + '_' + labels_positive['lon'].astype(str)
-print(f"Loaded {len(labels_positive)} positive (1s) rows.")
-
-
 
 pois_grid_count_name = scratch_directory + '/' + project_file + "_pois_grid_count" + ".csv"
 region_grid_gdf_name = scratch_directory + '/' + project_file + "_region_grid_gdf" + ".csv"
