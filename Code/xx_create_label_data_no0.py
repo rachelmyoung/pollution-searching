@@ -593,3 +593,10 @@ region_grid_gdf_name = output_path + '/' + project_file + "_region_grid_gdf" + "
 
 pois_grid_count.to_file(pois_grid_count_name , driver="GPKG")
 region_grid_gdf.to_file(region_grid_gdf_name , driver="GPKG")
+
+
+pois_grid_count_test = gpd.read_file(pois_grid_count_name)
+region_grid_gdf_test = gpd.read_file(region_grid_gdf_name)
+
+print(pois_grid_count_test.head())
+print(region_grid_gdf_test.head())
