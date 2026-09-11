@@ -51,7 +51,7 @@ else:
 res_string = str(res)
 
 buff = (res*5)/10
-round_value = (Decimal(res_string).as_tuple().exponent) + 1
+round_value = (Decimal(res_string).as_tuple().exponent) * -1
 
 if location == "Minnesota":
     poi_path = base_directory + "/raw/mn_superfund_spreadsheet.csv"
@@ -586,7 +586,7 @@ print("======SEEING WHY THERE ARE NO ZEROS======")
 print("pois_grid_count stuff:")
 print(pois_grid_count.head())
 
-'''
+
 ### ----- CONFIGURE POSITIVE AND NEGATIVE LABELS ----- ###
 #CREATE 1s AND 0s
 
@@ -693,4 +693,3 @@ explore_final_labels = gpd.GeoDataFrame(
 
 map_test = explore_final_labels.explore()
 map_test.save(map_test_filename)
-'''
