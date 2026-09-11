@@ -1,10 +1,31 @@
+import os
+import shutil
+import rasterio
+import subprocess
+import numpy as np
+import pandas as pd
+import geopandas as gpd
+import rasterio.features
+import matplotlib.pyplot as plt
+import requests
+import sys
+
+from rasterio.mask import mask
+from rasterio.merge import merge
+from rasterio.io import MemoryFile
+from exactextract import exact_extract
+from matplotlib.patches import Rectangle
+from shapely.geometry import box, Polygon, MultiPolygon, GeometryCollection
+from datetime import date
+from datetime import datetime
+from decimal import Decimal
 
 
+debug: bool = True
 
-
-
-
-
+###### --- PARAMETERS --- ######
+# We don't need to change parameters in this script anymore; they can be passed from the shell script.
+# I will eventually make each of these a Series and then iterate through them so we can do multiple types at once/
 
 ### ACCEPTING ARGUMENTS FROM SHELL SCRIPT ###
 
@@ -14,11 +35,17 @@ base_directory = "/projects/standard/rmyoung/shared/mosaiks"
 scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
 output_path = base_directory + "/output"
 
+if debug == True:
+    res = 0.1
+    location = "Minnesota"
+    parcel_check = False
+    zeroes = 1.0
 
-res = float(sys.argv[1])
-location = str(sys.argv[2])
-parcel_check = str(sys.argv[3]).lower() == "true"
-zeroes = float(sys.argv[4])
+else:
+    res = float(sys.argv[1])
+    location = str(sys.argv[2])
+    parcel_check = str(sys.argv[3]).lower() == "true"
+    zeroes = float(sys.argv[4])
 
 res_string = str(res)
 
@@ -41,6 +68,12 @@ print("Location value is " + str(location) + " and the type is " + str(type(loca
 print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
 
 
+
+pois_grid_count_name = scratch_directory + project_file + "_pois_grid_count" + ".csv"
+region_grid_gdf_name = scratch_directory + project_file + "_region_grid_gdf" + ".csv"
+
+pois_grid_count = gpd.read_file(pois_grid_count_name)
+region_grid_gdf = gpd.read_file(region_grid_gdf_name)
 
 
 
