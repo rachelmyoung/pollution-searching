@@ -22,7 +22,7 @@ from datetime import datetime
 from decimal import Decimal
 
 
-debug: bool = True
+debug: bool = False
 
 ###### --- PARAMETERS --- ######
 # We don't need to change parameters in this script anymore; they can be passed from the shell script.
