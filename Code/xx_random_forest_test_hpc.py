@@ -17,9 +17,20 @@ Uses the DecisionTreeClassifier.
 import os
 import numpy as np
 import pandas as pd
+import glob
+import Decimal
 
 from shapely.geometry import box, Polygon, MultiPolygon, GeometryCollection
+
+
+from scipy.linalg import LinAlgWarning
+from sklearn.linear_model import RidgeCV
+from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
 from sklearn import tree
+
+
+
 
 debug: bool = True
 
@@ -68,71 +79,111 @@ print("Location value is " + str(location) + " and the type is " + str(type(loca
 print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
 
 
+##### ===== SET UP DATA FOR CLASSIFIER AND TESTING ===== #####
+input_path = base_directory + '/intermediate'
 
-
-
-test_labels = pd.read_csv(input_path)
-test_labels.head()
-
-sample_size = len(test_labels)//2
-
-ran_indices = np.random.choice(len(test_labels), size=sample_size, replace=False)
+training_labels = pd.read_csv(input_path)
+training_labels.head()
 
 sample_data = np.column_stack((
-    test_labels['lat'].iloc[ran_indices],
-    test_labels['lon'].iloc[ran_indices]
+    training_labels['lat'],
+    training_labels['lon']
 ))
 
+label_data = training_labels['indicator']
 
 
-label_data = test_labels['indicator'].iloc[ran_indices]
-
-print(sample_data.shape)
-
-# ============================== #
-# testing on out of sample locations
-
-all_indices = np.arange(0,len(test_labels))
-
-test_indices = np.delete(all_indices, ran_indices)
-
-sharing_check = set(test_indices).isdisjoint(set(ran_indices))
-print("Training sample and testing data don't share sites is: " + str(sharing_check))
-
-tryout_sample = np.column_stack((
-    test_labels['lat'].iloc[test_indices],
-    test_labels['lon'].iloc[test_indices]
-))
-
-#tryout_labels = test_labels['indicator'].iloc[test_indices]
-
-print(tryout_sample.shape)
-
-loc_classifier = tree.DecisionTreeClassifier()
-loc_classifier = loc_classifier.fit(sample_data, label_data)
-
-test_answers = loc_classifier.predict(tryout_sample)
-
-print(test_answers)
-
-answers_dictionary = {
-    'lat': tryout_sample[:,0],
-    'lon': tryout_sample[:,1],
-    'forest indicator': test_answers,
-    'actual indicator': test_labels['indicator'].iloc[test_indices]
-}
+##### ===== Sets up testing ===== #####
+X_train, X_test, y_train, y_test = train_test_split(
+    sample_data, label_data, test_size=0.2, random_state=42
+)
 
 
 
-answers = pd.DataFrame(answers_dictionary)
 
-print(answers)
-answers.to_csv(output_path, index=False)
+##### ===== CREATE THE CLASSIFIER ===== #####
 
-forest_indicator_counts = answers['forest indicator'].value_counts()
-actual_indicator_counts = answers['actual indicator'].value_counts()
 
-print(forest_indicator_counts)
-print(actual_indicator_counts)
 
-"""Get output [here](https://drive.google.com/drive/folders/1Gc-wHjrz6HrfFUj5x8myGvnPfFeElGC4)"""
+
+
+print("Sample Data shape is " + sample_data.shape)
+print("Label Data shape is " + label_data.shape)
+
+
+
+
+
+##### ===== CREATE THE CLASSIFIER BASED ON TRAINING MODEL SCRIPT ===== #####
+from sklearn.linear_model import LogisticRegression
+
+# Initialize the classifier
+clf = tree.DecisionTreeClassifier()
+
+from sklearn.metrics import (
+    roc_auc_score, accuracy_score, precision_score,
+    log_loss, RocCurveDisplay, classification_report
+)
+import matplotlib.pyplot as plt
+
+# 1. Fit the model on training data
+clf = clf.fit(sample_data, label_data)
+
+# 2. Generate Predictions on the Test Set
+# Probabilities are needed for ROC and Log Loss
+y_probs = clf.predict_proba(X_test)[:, 1]
+# Classes are needed for Accuracy and Precision
+y_pred = clf.predict(X_test)
+
+# 3. Calculate the "Big Four" Metrics
+auc_val = roc_auc_score(y_test, y_probs)
+acc_val = accuracy_score(y_test, y_pred)
+prec_val = precision_score(y_test, y_pred)
+loss_val = log_loss(y_test, y_probs)
+
+# 4. Print the Performance Dashboard
+print("--- Test Set Performance ---")
+print(classification_report(y_test, y_pred))
+print(f"{'ROC-AUC:':<12} {auc_val:.4f}")
+print(f"{'Accuracy:':<12} {acc_val:.4f}")
+print(f"{'Precision:':<12} {prec_val:.4f}")
+print(f"{'Log Loss:':<12} {loss_val:.4f}")
+
+# 5. Generate the ROC Curve Plot
+fig, ax = plt.subplots(figsize=(7, 7))
+RocCurveDisplay.from_predictions(
+    y_test,
+    y_probs,
+    name="Test Set ROC",
+    color="blue",
+    lw=2,
+    ax=ax,
+    plot_chance_level=True
+)
+
+ax.set_title(f"ROC Curve (AUC = {auc_val:.3f})")
+plt.grid(alpha=0.3)
+
+#------USER INPUT--------#
+#Save image to your Drive folder: edit the output folder path and file name as needed
+today_date = datetime.date.today().strftime("%Y-%m-%d")
+output_folder = output_path #output folder path
+output_plot_filename = f'{today_date}_ROC_curve_.01_Federallabels_firsttest_no_train_test_split.pdf' #rename as needed
+full_plot_path = os.path.join(output_folder, output_plot_filename)
+plt.savefig(full_plot_path, dpi=300, bbox_inches='tight')
+
+#Save text results to Drive folder
+output_text_filename = f'{today_date}_performance_results_.01_Federallabels_firsttest_no_train_test_split.txt' #rename as needed
+full_text_path = os.path.join(output_folder, output_text_filename)
+with open(full_text_path, 'w') as f:
+    f.write("--- Test Set Performance ---")
+    f.write(classification_report(y_test, y_pred))
+    f.write(f"{'ROC-AUC:':<12} {auc_val:.4f}\n")
+    f.write(f"{'Accuracy:':<12} {acc_val:.4f}\n")
+    f.write(f"{'Precision:':<12} {prec_val:.4f}\n")
+    f.write(f"{'Log Loss:':<12} {loss_val:.4f}\n")
+
+
+plt.show()
+
+
