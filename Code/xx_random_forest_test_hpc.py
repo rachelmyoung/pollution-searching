@@ -50,7 +50,7 @@ scratch_directory = "/scratch.local" # experimental; will need to alter the shel
 output_path = base_directory + "/output"
 
 if debug == True:
-    res = 0.1
+    res = 0.01
     location = "Minnesota"
     parcel_check = False
     zeroes = 1.0
@@ -86,7 +86,9 @@ print("Parcel check value is " + str(parcel_check) + " and the type is " + str(t
 
 #------USER INPUT--------#
 
-input_path = output_path + "/Minnesota0_01_200.0_combinedlabels.csv"
+combined_labels_filename = base_directory + "/output/" + project_file + "_combinedlabels" + ".csv"
+
+input_path = combined_labels_filename
 
 '''
 #input the folder path where your GEE .csv files are stored
@@ -185,14 +187,14 @@ plt.grid(alpha=0.3)
 #Save image to your Drive folder: edit the output folder path and file name as needed
 today_date = datetime.date.today().strftime("%Y-%m-%d")
 output_folder = output_path #output folder path
-output_plot_filename = f'{today_date}_ROC_curve_.01_Federallabels_firsttest_no_train_test_split.pdf' #rename as needed
-full_plot_path = os.path.join(output_folder, output_plot_filename)
-plt.savefig(full_plot_path, dpi=300, bbox_inches='tight')
+
+output_plot_filename = output_path + "/ROC_curve_" + project_file + ".pdf" #rename as needed
+
+plt.savefig(output_plot_filename, dpi=300, bbox_inches='tight')
 
 #Save text results to Drive folder
-output_text_filename = f'{today_date}_performance_results_.01_Federallabels_firsttest_no_train_test_split.txt' #rename as needed
-full_text_path = os.path.join(output_folder, output_text_filename)
-with open(full_text_path, 'w') as f:
+output_text_filename = output_path + "/performance_results_" + project_file + ".txt" #rename as needed
+with open(output_text_filename, 'w') as f:
     f.write("--- Test Set Performance ---")
     f.write(classification_report(y_test, y_pred))
     f.write(f"{'ROC-AUC:':<12} {auc_val:.4f}\n")
