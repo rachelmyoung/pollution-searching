@@ -18,7 +18,8 @@ import os
 import numpy as np
 import pandas as pd
 import glob
-import Decimal
+from decimal import Decimal
+import datetime
 
 from shapely.geometry import box, Polygon, MultiPolygon, GeometryCollection
 
@@ -28,6 +29,8 @@ from sklearn.linear_model import RidgeCV
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+import matplotlib.pyplot as plt
 
 
 
@@ -80,7 +83,27 @@ print("Parcel check value is " + str(parcel_check) + " and the type is " + str(t
 
 
 ##### ===== SET UP DATA FOR CLASSIFIER AND TESTING ===== #####
-input_path = base_directory + '/intermediate'
+
+#------USER INPUT--------#
+
+input_path = output_path + "/Minnesota0_01_200.0_combinedlabels.csv"
+
+'''
+#input the folder path where your GEE .csv files are stored
+folder_path = input_path
+file_pattern = os.path.join(folder_path, 'GEE_featurization_2026-09-17_9_*.csv') #name pattern of files from GEE 	
+file_list = glob.glob(file_pattern) 
+
+df_list = [pd.read_csv(f) for f in file_list]
+
+print(len(df_list))
+
+full_df = pd.concat(df_list, ignore_index=True)
+
+print(f"Final combined row count: {len(full_df)}")
+full_df.head()
+'''
+
 
 training_labels = pd.read_csv(input_path)
 training_labels.head()
@@ -94,31 +117,24 @@ label_data = training_labels['indicator']
 
 
 ##### ===== Sets up testing ===== #####
+X = sample_data
+y = label_data
+
 X_train, X_test, y_train, y_test = train_test_split(
-    sample_data, label_data, test_size=0.2, random_state=42
+    X, y, test_size=0.2, random_state=42
 )
 
-
+print("Sample Data shape is " + str(sample_data.shape))
+print("Label Data shape is " + str(label_data.shape))
 
 
 ##### ===== CREATE THE CLASSIFIER ===== #####
 
 
-
-
-
-print("Sample Data shape is " + sample_data.shape)
-print("Label Data shape is " + label_data.shape)
-
-
-
-
-
-##### ===== CREATE THE CLASSIFIER BASED ON TRAINING MODEL SCRIPT ===== #####
 from sklearn.linear_model import LogisticRegression
 
 # Initialize the classifier
-clf = tree.DecisionTreeClassifier()
+clf = RandomForestClassifier()
 
 from sklearn.metrics import (
     roc_auc_score, accuracy_score, precision_score,
@@ -127,13 +143,15 @@ from sklearn.metrics import (
 import matplotlib.pyplot as plt
 
 # 1. Fit the model on training data
-clf = clf.fit(sample_data, label_data)
+clf = clf.fit(X_train, y_train)
 
 # 2. Generate Predictions on the Test Set
 # Probabilities are needed for ROC and Log Loss
 y_probs = clf.predict_proba(X_test)[:, 1]
 # Classes are needed for Accuracy and Precision
 y_pred = clf.predict(X_test)
+
+
 
 # 3. Calculate the "Big Four" Metrics
 auc_val = roc_auc_score(y_test, y_probs)
@@ -155,8 +173,7 @@ RocCurveDisplay.from_predictions(
     y_test,
     y_probs,
     name="Test Set ROC",
-    color="blue",
-    lw=2,
+    curve_kwargs={"color": "blue", "linewidth": 2},
     ax=ax,
     plot_chance_level=True
 )
