@@ -35,11 +35,8 @@ import matplotlib.pyplot as plt
 
 
 
-debug: bool = True
-
-###### --- PARAMETERS --- ######
-# We don't need to change parameters in this script anymore; they can be passed from the shell script.
-# I will eventually make each of these a Series and then iterate through them so we can do multiple types at once/
+###### --- START BOILERPLATE --- ######
+debug: bool = False
 
 ### ACCEPTING ARGUMENTS FROM SHELL SCRIPT ###
 
@@ -47,24 +44,28 @@ debug: bool = True
 # This should almost never need to change
 base_directory = "/projects/standard/rmyoung/shared/mosaiks"
 scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
-output_path = base_directory + "/output"
+input_path = base_directory + "/output/gee_container"
+output_path = base_directory + "/output/figures"
 
 if debug == True:
-    res = 0.01
+    res = 0.1
     location = "Minnesota"
     parcel_check = False
     zeroes = 1.0
+    suffix = ""
 
 else:
     res = float(sys.argv[1])
     location = str(sys.argv[2])
     parcel_check = str(sys.argv[3]).lower() == "true"
     zeroes = float(sys.argv[4])
+    suffix = str(sys.argv[5])
 
 res_string = str(res)
+zeroes_string = str(int(zeroes)*100)
 
 buff = (res*5)/10
-round_value = (Decimal(res_string).as_tuple().exponent) + 1
+round_value = abs((Decimal(res_string).as_tuple().exponent) - 1)
 
 if location == "Minnesota":
     poi_path = base_directory + "/raw/mn_superfund_spreadsheet.csv"
@@ -74,7 +75,9 @@ else:
     poi_path = base_directory + "/raw/federal_superfund_spreadsheet.csv"
 
 #NAMING THE FILE
-project_file = location + res_string.replace('.','_') + "_" + str(int(zeroes*100))
+project_file = location + "_r" + res_string + "_z" + zeroes_string + suffix
+
+###### --- END BOILERPLATE --- ######
 
 
 print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
