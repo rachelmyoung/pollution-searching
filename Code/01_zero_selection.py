@@ -60,7 +60,7 @@ else:
     poi_path = base_directory + "/raw/federal_superfund_spreadsheet.csv"
 
 #NAMING THE FILE
-project_file = location + res_string.replace('.','_') + "_" + str(zeroes*100)
+project_file = location + res_string.replace('.','_') + "_" + str(int(zeroes*100))
 
 
 print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
