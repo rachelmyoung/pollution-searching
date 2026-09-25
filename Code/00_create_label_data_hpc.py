@@ -21,6 +21,7 @@ from datetime import date
 from datetime import datetime
 from decimal import Decimal
 
+print("DEBUG MESSAGE TO MAKE SURE GIT STUFF IS WORKING")
 
 ###### --- START BOILERPLATE --- ######
 debug: bool = False
@@ -516,7 +517,7 @@ pois_grid = gpd.sjoin(
     predicate="intersects",
 )
 
-print("see what POIS GRID LOOKSL LIKE NOW")
+print("see what POIS GRID LOOKS LIKE NOW")
 print(pois_grid.head())
 
 #  CHECK THE OUTPUT
@@ -548,7 +549,7 @@ if parcel_check==True:
 
 
 
-
+print("ABOUT TO CREATE LABEL SUMMARY")
 
 ### ----- CREATE LABEL SUMMARY ----- ###
 # From MOSAIKS: "We then group the labels by the grid cell and count the number of labels in each grid cell. This will be our label summary."
@@ -573,6 +574,8 @@ pois_grid_count = gpd.GeoDataFrame(
 )
 pois_grid_count.geometry = pois_grid_count.geometry.buffer(buff, cap_style=3)
 #pois_grid_count
+\
+print("FINISHED LABEL SUMMARY CREATION")
 
 
 
