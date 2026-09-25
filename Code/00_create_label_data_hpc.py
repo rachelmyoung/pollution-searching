@@ -58,7 +58,7 @@ else:
     suffix = ""
 
 res_string = str(res)
-zeroes_string = str(zeroes*100)
+zeroes_string = str(int(zeroes*100))
 
 buff = (res*5)/10
 round_value = abs((Decimal(res_string).as_tuple().exponent) - 1)
