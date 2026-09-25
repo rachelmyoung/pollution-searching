@@ -51,8 +51,8 @@ else:
     
     parcel_check = str(sys.argv[3]).lower() == "true"
     print("Arg 3 is " + str(sys.argv[3]))
-    
-    zeroes = float(sys.argv[4])
+   
+    zeroes = float((sys.argv[4]).replace(",", ""))
     print("Arg 5 is " + str(sys.argv[4]))
 
     suffix = ""
