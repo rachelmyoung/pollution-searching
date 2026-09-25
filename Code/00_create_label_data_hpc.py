@@ -55,6 +55,8 @@ else:
     zeroes = float(sys.argv[4])
     print("Arg 5 is " + str(sys.argv[4]))
 
+    suffix = ""
+
 res_string = str(res)
 zeroes_string = str(int(zeroes)*100)
 
