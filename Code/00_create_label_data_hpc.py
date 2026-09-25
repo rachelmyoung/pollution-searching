@@ -579,6 +579,8 @@ pois_grid_count.geometry = pois_grid_count.geometry.buffer(buff, cap_style=3)
 ### ----- CONFIGURE POSITIVE AND NEGATIVE LABELS ----- ###
 #CREATE 1s AND 0s
 
+print("DEBUG MESSAGE: JUST STARTED DEALING WITH ZEROES")
+
 #PREPARE POSITIVE LABELS (the 1s)
 labels_positive = pois_grid_count.rename(columns={"superfund": "indicator"})
 labels_positive['indicator'] = 1
@@ -642,6 +644,8 @@ final_negatives = valid_negatives[~valid_negatives['temp_key'].isin(positive_key
 
 final_negatives['indicator'] = 0 #assigns all negative labels to indicator 0
 
+print("DEBUG MESSAGE: JUST FINISHED DEALING WITH ZEROES")
+
 # Combine
 final_labels = pd.concat([
     labels_positive[['lat', 'lon', 'indicator']],
@@ -661,6 +665,7 @@ print(final_labels['indicator'].value_counts())
 ### 7. ROUND THE LABELS BASED ON RESOLUTION PARAMETER AND ADDS A COLUMN HEADER TO THE ROW INDEX
 final_labels=final_labels.round(round_value)
 final_labels.index.name = 'Row_Count' # RY: this adds a column header to the row index
+print("Final labels head")
 print(final_labels.head())
 
 
