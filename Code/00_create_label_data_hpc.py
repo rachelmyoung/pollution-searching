@@ -43,11 +43,11 @@ if debug == True:
     suffix = ""
 
 else:
-    res = float(sys.argv[1])
-    location = str(sys.argv[2])
-    parcel_check = str(sys.argv[3]).lower() == "true"
-    zeroes = float(sys.argv[4])
-    suffix = str(sys.argv[5])
+    res = float(sys.argv[0])
+    location = str(sys.argv[1])
+    parcel_check = str(sys.argv[2]).lower() == "true"
+    zeroes = float(sys.argv[3])
+    suffix = str(sys.argv[4])
 
 res_string = str(res)
 zeroes_string = str(int(zeroes)*100)
