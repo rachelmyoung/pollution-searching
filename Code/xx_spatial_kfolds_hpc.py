@@ -30,15 +30,7 @@ That's it!
 Packages required for the whole code:
 """
 
-# 0%
-# 1%
-# 5%
-# 10%
-# 25%
-# 50%
-# 100%
-# 200%
-# 400%
+
 
 
 import pandas as pd
@@ -54,12 +46,14 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import LeaveOneGroupOut
 from sklearn.model_selection import cross_validate
 import matplotlib.pyplot as plt
-from matplotlib import cm
+#from matplotlib import cm
+import matplotlib as mpl
 import matplotlib.colors as colors
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from sklearn.metrics import roc_curve, roc_auc_score
 import sys
+from decimal import Decimal
 
 
 
@@ -71,6 +65,8 @@ from spatialkfold.stats import spatial_kfold_stats
 
 from sklearn.metrics import auc, RocCurveDisplay
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+
 from sklearn.model_selection import FixedThresholdClassifier
 
 from sklearn.metrics import accuracy_score, precision_score, log_loss
@@ -80,11 +76,8 @@ from matplotlib.ticker import ScalarFormatter
 
 
 
-debug: bool = False
-
-###### --- PARAMETERS --- ######
-# We don't need to change parameters in this script anymore; they can be passed from the shell script.
-# I will eventually make each of these a Series and then iterate through them so we can do multiple types at once/
+###### --- START BOILERPLATE --- ######
+debug: bool = True
 
 ### ACCEPTING ARGUMENTS FROM SHELL SCRIPT ###
 
@@ -93,23 +86,32 @@ debug: bool = False
 base_directory = "/projects/standard/rmyoung/shared/mosaiks"
 scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
 input_path = base_directory + "/output/gee_container"
-output_path = base_directory + "/output/figures"
+output_directory = base_directory + "/output/figures"
 
-if debug == True:
-    res = 0.1
-    location = "Minnesota"
-    parcel_check = False
-    zeroes = 1.0
-    suffix = ""
-
+# if debug == True:
+res = 0.01
+location = "Minnesota"
+parcel_check = False
+zeroes = 0.01
+suffix = ""
+'''
 else:
     res = float(sys.argv[1])
+    print("Arg 1 is " + str(sys.argv[1]))
+    
     location = str(sys.argv[2])
+    print("Arg 2 is " + str(sys.argv[2]))
+    
     parcel_check = str(sys.argv[3]).lower() == "true"
-    zeroes = float(sys.argv[4])
-    suffix = str(sys.argv[5])
+    print("Arg 3 is " + str(sys.argv[3]))
+   
+    zeroes = float((sys.argv[4]).replace(",", ""))
+    print("Arg 4 is " + str(sys.argv[4]))
 
-res_string = str(res)
+    suffix = ""
+'''
+res_string = str(int(res*100))
+zeroes_string = str(int(zeroes*100))
 
 buff = (res*5)/10
 round_value = abs((Decimal(res_string).as_tuple().exponent) - 1)
@@ -122,7 +124,16 @@ else:
     poi_path = base_directory + "/raw/federal_superfund_spreadsheet.csv"
 
 #NAMING THE FILE
-project_file = location + res_string.replace('.','_') + str(int(zeroes*100)) + "_" + suffix
+project_file = location + "_r" + res_string + "_z" + zeroes_string + suffix
+
+print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
+print("Location value is " + str(location) + " and the type is " + str(type(location)))
+print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
+print("Zeroes value is " + str(zeroes) + " and the type is " + str(type(zeroes)))
+print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix)))
+
+
+###### --- END BOILERPLATE --- ######
 
 
 
@@ -132,8 +143,10 @@ today_date = datetime.date.today().strftime("%Y-%m-%d")
 #------USER INPUT--------#
 #Input the folder path and file list where your GEE featurized 0% random 0s .csv label files are stored
 
-file_pattern = os.path.join(input_path, "GEE_featurization_" + project_file + "*.csv") #name pattern of files from GEE here
+file_pattern = base_directory + "/output/" + project_file + "_combinedlabels" + ".csv" #name pattern of files from GEE here
 file_list = glob.glob(file_pattern)
+
+
 
 print(f"Found {len(file_list)} files to combine.")
 
@@ -210,7 +223,7 @@ federal_clusters = spatial_kfold_clusters(
 
 # --- 3. PLOTTING ---
 # Get the 'tab20' colormap
-cols_tab = cm.get_cmap('tab20', 10)
+cols_tab = mpl.colormaps['tab20'].resampled(10)
 cols = [cols_tab(i) for i in range(10)]
 color_ramp = ListedColormap(cols)
 
@@ -254,7 +267,8 @@ for i in range(1,11):
 percentiles = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
 # 2. Create the list of feature columns matching the Axx_pxx format
-feature_cols = []
+feature_cols = ['lat','lon']
+'''
 for i in range(64):
     # Format band name to A00, A01... A63
     band_name = f"A0{i}" if i < 10 else f"A{i}"
@@ -266,7 +280,7 @@ for i in range(64):
         # Only add it if it actually exists in your merged dataframe
         if col_name in federal_prj.columns:
             feature_cols.append(col_name)
-
+'''
 # 3. Define your target variable
 y = federal_prj['indicator']
 
@@ -287,7 +301,10 @@ The next bits are for random: turns it into a logistic (binary) regression, rand
 """
 
 # 1. Define your base model
-base_clf = LogisticRegression(max_iter=1000, C=1.0, random_state=123)
+
+#base_clf = LogisticRegression(max_iter=1000, C=1.0, random_state=123)
+base_clf = RandomForestClassifier()
+
 
 # Wrap it with FixedThresholdClassifier -- changes by what share of random zeros we have
 custom_threshold_clf = FixedThresholdClassifier(base_clf, threshold=0.5)
@@ -325,7 +342,8 @@ print(random_n_scores)
 
 plt.close('all')
 # --- 1. Setup ---
-base_clf = LogisticRegression(max_iter=1000, C=1.0, random_state=123)
+# commented this out because it redeclared base_clf with the exact same arguments it was initially declared with
+# base_clf = LogisticRegression(max_iter=1000, C=1.0, random_state=123)
 clf = FixedThresholdClassifier(base_clf, threshold=0.5)
 cv = KFold(n_splits=10, shuffle=True, random_state=123)
 
@@ -346,8 +364,7 @@ for fold, (train, test) in enumerate(cv.split(X, y)):
         X.iloc[test],
         y.iloc[test],
         name=f"ROC fold {fold}",
-        alpha=0.3, # Faded lines for individual folds
-        lw=1,
+        curve_kwargs={'alpha': 0.8, 'lw': 2}, # Faded lines for individual folds
         ax=ax,
         plot_chance_level=(fold == 0) # Only plot the 'Luck' line once
     )
@@ -531,8 +548,7 @@ for fold, (train_idx, test_idx) in enumerate(logo.split(X, y, groups=groups)):
         X.iloc[test_idx],
         y.iloc[test_idx],
         name=f"ROC fold {fold}",
-        alpha=0.3,
-        lw=1,
+        curve_kwargs={'alpha': 0.3, 'lw': 1},
         ax=ax,
         # Plot the dotted chance level line ONLY for the first valid fold
         plot_chance_level=(len(tprs) == 0)
@@ -736,12 +752,18 @@ add_result_row(0, 'K fold', 'precision', spatial_summary_0.loc['Mean', 'precisio
 add_result_row(0, 'K fold', 'accuracy', spatial_summary_0.loc['Mean', 'accuracy'], spatial_summary_0.loc['Median', 'accuracy'], spatial_summary_0.loc['Std Dev', 'accuracy'], spatial_summary_0.loc['Min (Worst)', 'accuracy'], spatial_summary_0.loc['Max (Best)', 'accuracy'], spatial_summary_0.loc['Q1 (25%)', 'accuracy'], spatial_summary_0.loc['Q3 (75%)', 'accuracy'])
 add_result_row(0, 'K fold', 'log_loss', spatial_summary_0.loc['Mean', 'log_loss'], spatial_summary_0.loc['Median', 'log_loss'], spatial_summary_0.loc['Std Dev', 'log_loss'], spatial_summary_0.loc['Min (Worst)', 'log_loss'], spatial_summary_0.loc['Max (Best)', 'log_loss'], spatial_summary_0.loc['Q1 (25%)', 'log_loss'], spatial_summary_0.loc['Q3 (75%)', 'log_loss'])
 
+
+# the goal here is to load a csv every time we run this script except the first (when we have 0% 0s) and then append the results of the current set of 0s to it. This is very ugly and brittle and should be replaced soon.
+
 df_long = pd.DataFrame(all_results_data)
+
+results_filename = f'{project_file}_results.csv'
+results_full_path = os.path.join(output_directory, results_filename)
+df_long.to_csv(results_full_path, index=False)
+
 
 # Display the head of the DataFrame to verify its content
 display(df_long.head())
-
-
 
 
 # ===== END OF PARAMETERERIZED SECTION ==== #####
@@ -777,7 +799,7 @@ display(df_long.head())
 
 
 
-
+'''
 
 
 
@@ -830,8 +852,8 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{today_date}_Performance_Distribution_by_Data_Imbalance_MedianFocus_.01_Federal.pdf' #name of pdf
-full_path = os.path.join(output_folder, output_filename)
+output_filename = f'{project_file}_Performance_Distribution_by_Data_Imbalance_MedianFocus.pdf' #name of pdf
+full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
 plt.show()
@@ -875,8 +897,8 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{today_date}_Performance_Distribution_by_Data_Imbalance_MeanFocus_.01_Federal.pdf'
-full_path = os.path.join(output_folder, output_filename)
+output_filename = f'{project_file}_Performance_Distribution_by_Data_Imbalance_MeanFocus.pdf'
+full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
 plt.show()
@@ -926,8 +948,8 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{today_date}_Mean_Model_Performance_Logged_.01_Federal.pdf'
-full_path = os.path.join(output_folder, output_filename)
+output_filename = f'{project_file}_Mean_Model_Performance_Logged_.01_Federal.pdf'
+full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
 plt.show()
@@ -972,8 +994,10 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{today_date}_Research_Curve_.01_Federal.pdf'
-full_path = os.path.join(output_folder, output_filename)
+output_filename = f'{project_file}_Research_Curve.pdf'
+full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
 plt.show()
+
+'''
