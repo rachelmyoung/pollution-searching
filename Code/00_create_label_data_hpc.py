@@ -65,6 +65,14 @@ else:
 #NAMING THE FILE
 project_file = location + "_r" + res_string + "_z" + zeroes_string + suffix
 
+print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
+print("Location value is " + str(location) + " and the type is " + str(type(location)))
+print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
+print("Zeroes value is " + str(zeroes) + " and the type is " + str(type(zeroes)))
+print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix)))
+
+
+
 ###### --- END BOILERPLATE --- ######
 
 ###### ----- FUNCTIONS ----- ######
