@@ -57,7 +57,7 @@ else:
 
     suffix = ""
 
-res_string = str(res)
+res_string = str(int(res*100))
 zeroes_string = str(int(zeroes*100))
 
 buff = (res*5)/10
