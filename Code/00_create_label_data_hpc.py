@@ -575,10 +575,6 @@ pois_grid_count.geometry = pois_grid_count.geometry.buffer(buff, cap_style=3)
 #pois_grid_count
 
 
-print("======SEEING WHY THERE ARE NO ZEROS======")
-print("pois_grid_count stuff:")
-print(pois_grid_count.head())
-
 
 ### ----- CONFIGURE POSITIVE AND NEGATIVE LABELS ----- ###
 #CREATE 1s AND 0s
@@ -657,6 +653,9 @@ print(f"Positives found: {len(labels_positive)}")
 print(f"Valid Negatives found (after sampling): {len(final_negatives)}")
 print(final_labels['indicator'].value_counts())
 
+
+
+
 #See output text: it will tell you how many 1s and 0s your data will have.
 
 ### 7. ROUND THE LABELS BASED ON RESOLUTION PARAMETER AND ADDS A COLUMN HEADER TO THE ROW INDEX
@@ -669,6 +668,8 @@ print(final_labels.head())
 
 
 ##### ----- SAVE THE COMBINED LABELS ----- #####
+print("DEBUG MESSAGE  TO SEE IF SCRIPT GETS TO SAVING STEP")
+
 combined_labels_filename = base_directory + "/output/" + project_file + "_combinedlabels" + ".csv"
 final_labels.to_csv(combined_labels_filename, index=True)
 
