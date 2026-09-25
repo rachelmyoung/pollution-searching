@@ -53,7 +53,7 @@ else:
     print("Arg 3 is " + str(sys.argv[3]))
    
     zeroes = float((sys.argv[4]).replace(",", ""))
-    print("Arg 5 is " + str(sys.argv[4]))
+    print("Arg 4 is " + str(sys.argv[4]))
 
     suffix = ""
 
@@ -697,10 +697,13 @@ print("DEBUG MESSAGE  TO SEE IF SCRIPT GETS TO SAVING STEP")
 combined_labels_filename = base_directory + "/output/" + project_file + "_combinedlabels" + ".csv"
 final_labels.to_csv(combined_labels_filename, index=True)
 
+print("Combined labels saved to: " + str(combined_labels_filename))
+
 print("Label creation complete!")
 
 
 ##### ----- PRINT TEST MAP ----- #####
+'''
 map_test_filename = base_directory + "/output/" + project_file + "_interactivemap" + ".html"
 
 explore_final_labels = gpd.GeoDataFrame(
@@ -711,3 +714,4 @@ explore_final_labels = gpd.GeoDataFrame(
 
 map_test = explore_final_labels.explore()
 map_test.save(map_test_filename)
+'''
