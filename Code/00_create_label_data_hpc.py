@@ -44,11 +44,15 @@ if debug == True:
 
 else:
     res = float(sys.argv[1])
+    print("Arg 1 is " + str(sys.argv[1]))
     location = str(sys.argv[2])
+    print("Arg 2 is " + str(sys.argv[2]))
     parcel_check = str(sys.argv[3]).lower() == "true"
+    print("Arg 3 is " + str(sys.argv[3]))
     suffix = str(sys.argv[4])
+    print("Arg 4 is " + str(sys.argv[4]))
     zeroes = float(sys.argv[5])
-    
+    print("Arg 5 is " + str(sys.argv[5]))
 
 res_string = str(res)
 zeroes_string = str(int(zeroes)*100)
