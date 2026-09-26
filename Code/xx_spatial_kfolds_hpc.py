@@ -92,7 +92,7 @@ output_directory = base_directory + "/output/figures"
 res = 0.01
 location = "Minnesota"
 parcel_check = False
-zeroes = 0.01
+zeroes = 4.0
 suffix = ""
 '''
 else:
@@ -765,5 +765,6 @@ df_long.to_csv(results_full_path, index=False)
 # Display the head of the DataFrame to verify its content
 display(df_long.head())
 
-
+print("you have successfully generated spatial kfold data for " + zeroes_string + "% 0s.")
+print("directory location is " + results_full_path)
 # ===== END OF PARAMETERERIZED SECTION ==== #####
