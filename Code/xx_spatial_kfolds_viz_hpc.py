@@ -109,8 +109,9 @@ results_frames = {}
 
 for zero in zeroes_list:
     results_filename = results_stem + "_z" + str(zero) + suffix + "_results.csv"
+    results_full_path = os.path.join(scratch_directory, results_filename)
     results_df_name = f"df_{zero}"
-    results_frames[results_df_name] = results_df = pd.read_csv(results_filename)
+    results_frames[results_df_name] = results_df = pd.read_csv(results_full_path)
     
 
 
@@ -314,5 +315,3 @@ full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
 plt.show()
-
-'''
