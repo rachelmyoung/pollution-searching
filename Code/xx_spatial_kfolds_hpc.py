@@ -758,7 +758,7 @@ add_result_row(0, 'K fold', 'log_loss', spatial_summary_0.loc['Mean', 'log_loss'
 df_long = pd.DataFrame(all_results_data)
 
 results_filename = f'{project_file}_results.csv'
-results_full_path = os.path.join(output_directory, results_filename)
+results_full_path = os.path.join(scratch_directory, results_filename)
 df_long.to_csv(results_full_path, index=False)
 
 
