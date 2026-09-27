@@ -55,7 +55,7 @@ output_directory = base_directory + "/output/figures"
 
 # if debug == True:
 res = 0.01
-location = "Minnesota"
+location = "US"
 parcel_check = False
 zeroes = 0.01
 suffix = ""
@@ -100,6 +100,8 @@ print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix))
 
 
 ###### --- END BOILERPLATE --- ######
+
+testing_suffix = "no_threshold_or_logistic"
 
 ###### --- GENERATE SPATIAL KFOLD RESULTS FILENAMES --- ######
 
@@ -176,7 +178,7 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{results_stem}_Performance_Distribution_by_Data_Imbalance_MedianFocus.pdf' #name of pdf
+output_filename = f'{results_stem}_{testing_suffix}_Performance_Distribution_by_Data_Imbalance_MedianFocus.pdf' #name of pdf
 full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
@@ -221,7 +223,7 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{results_stem}_Performance_Distribution_by_Data_Imbalance_MeanFocus.pdf'
+output_filename = f'{results_stem}_{testing_suffix}_Performance_Distribution_by_Data_Imbalance_MeanFocus.pdf'
 full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
@@ -272,7 +274,7 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{results_stem}_Mean_Model_Performance_Logged.pdf'
+output_filename = f'{results_stem}_{testing_suffix}_Mean_Model_Performance_Logged.pdf'
 full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
@@ -318,7 +320,7 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{results_stem}_Research_Curve.pdf'
+output_filename = f'{results_stem}_{testing_suffix}_Research_Curve.pdf'
 full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
