@@ -109,13 +109,21 @@ results_frames = {}
 
 for zero in zeroes_list:
     results_filename = results_stem + "_z" + str(zero) + suffix + "_results.csv"
+    print(results_filename)
     results_full_path = os.path.join(scratch_directory, results_filename)
     results_df_name = f"df_{zero}"
-    results_frames[results_df_name] = results_df = pd.read_csv(results_full_path)
+    results_frames[results_df_name] = pd.read_csv(results_full_path)
+    print(f"head at {zero}% zeroes is:")
+    print(results_frames[results_df_name].head())
+    print(f"tail at {zero}% zeroes is:")
+    print(results_frames[results_df_name].tail())
     
 
 
 df_long = pd.concat(results_frames.values(), ignore_index=True)
+
+print(df_long.head())
+print(df_long.tail())
 
 
 
@@ -168,7 +176,7 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{project_file}_Performance_Distribution_by_Data_Imbalance_MedianFocus.pdf' #name of pdf
+output_filename = f'{results_stem}_Performance_Distribution_by_Data_Imbalance_MedianFocus.pdf' #name of pdf
 full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
@@ -213,7 +221,7 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{project_file}_Performance_Distribution_by_Data_Imbalance_MeanFocus.pdf'
+output_filename = f'{results_stem}_Performance_Distribution_by_Data_Imbalance_MeanFocus.pdf'
 full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
@@ -264,7 +272,7 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{project_file}_Mean_Model_Performance_Logged_.01_Federal.pdf'
+output_filename = f'{results_stem}_Mean_Model_Performance_Logged.pdf'
 full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 
@@ -310,7 +318,7 @@ plt.tight_layout()
 
 #-----USER INPUT-----#
 # Save plot
-output_filename = f'{project_file}_Research_Curve.pdf'
+output_filename = f'{results_stem}_Research_Curve.pdf'
 full_path = os.path.join(output_directory, output_filename)
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 

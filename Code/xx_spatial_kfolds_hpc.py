@@ -111,7 +111,8 @@ else:
     suffix = ""
 '''
 res_string = str(int(res*100))
-zeroes_string = str(int(zeroes*100))
+zeroes_pct = int(zeroes*100)
+zeroes_string = str(zeroes_pct)
 
 buff = (res*5)/10
 round_value = abs((Decimal(res_string).as_tuple().exponent) - 1)
@@ -743,14 +744,14 @@ spatial_summary_0.index = ['Mean','Median','Std Dev','Min (Worst)','Max (Best)',
 # --- POPULATING WITH YOUR PROVIDED NUMBERS (0% data)
 
 # 0% - Auto-populated with current run results
-add_result_row(0, 'Random', 'auc', random_summary_0.loc['Mean', 'auc'], random_summary_0.loc['Median', 'auc'], random_summary_0.loc['Std Dev', 'auc'], random_summary_0.loc['Min (Worst)', 'auc'], random_summary_0.loc['Max (Best)', 'auc'], random_summary_0.loc['Q1 (25%)', 'auc'], random_summary_0.loc['Q3 (75%)', 'auc'])
-add_result_row(0, 'Random', 'precision', random_summary_0.loc['Mean', 'precision'], random_summary_0.loc['Median', 'precision'], random_summary_0.loc['Std Dev', 'precision'], random_summary_0.loc['Min (Worst)', 'precision'], random_summary_0.loc['Max (Best)', 'precision'], random_summary_0.loc['Q1 (25%)', 'precision'], random_summary_0.loc['Q3 (75%)', 'precision'])
-add_result_row(0, 'Random', 'accuracy', random_summary_0.loc['Mean', 'accuracy'], random_summary_0.loc['Median', 'accuracy'], random_summary_0.loc['Std Dev', 'accuracy'], random_summary_0.loc['Min (Worst)', 'accuracy'], random_summary_0.loc['Max (Best)', 'accuracy'], random_summary_0.loc['Q1 (25%)', 'accuracy'], random_summary_0.loc['Q3 (75%)', 'accuracy'])
-add_result_row(0, 'Random', 'log_loss', random_summary_0.loc['Mean', 'log_loss'], random_summary_0.loc['Median', 'log_loss'], random_summary_0.loc['Std Dev', 'log_loss'], random_summary_0.loc['Min (Worst)', 'log_loss'], random_summary_0.loc['Max (Best)', 'log_loss'], random_summary_0.loc['Q1 (25%)', 'log_loss'], random_summary_0.loc['Q3 (75%)', 'log_loss'])
-add_result_row(0, 'K fold', 'auc', spatial_summary_0.loc['Mean', 'auc'], spatial_summary_0.loc['Median', 'auc'], spatial_summary_0.loc['Std Dev', 'auc'], spatial_summary_0.loc['Min (Worst)', 'auc'], spatial_summary_0.loc['Max (Best)', 'auc'], spatial_summary_0.loc['Q1 (25%)', 'auc'], spatial_summary_0.loc['Q3 (75%)', 'auc'])
-add_result_row(0, 'K fold', 'precision', spatial_summary_0.loc['Mean', 'precision'], spatial_summary_0.loc['Median', 'precision'], spatial_summary_0.loc['Std Dev', 'precision'], spatial_summary_0.loc['Min (Worst)', 'precision'], spatial_summary_0.loc['Max (Best)', 'precision'], spatial_summary_0.loc['Q1 (25%)', 'precision'], spatial_summary_0.loc['Q3 (75%)', 'precision'])
-add_result_row(0, 'K fold', 'accuracy', spatial_summary_0.loc['Mean', 'accuracy'], spatial_summary_0.loc['Median', 'accuracy'], spatial_summary_0.loc['Std Dev', 'accuracy'], spatial_summary_0.loc['Min (Worst)', 'accuracy'], spatial_summary_0.loc['Max (Best)', 'accuracy'], spatial_summary_0.loc['Q1 (25%)', 'accuracy'], spatial_summary_0.loc['Q3 (75%)', 'accuracy'])
-add_result_row(0, 'K fold', 'log_loss', spatial_summary_0.loc['Mean', 'log_loss'], spatial_summary_0.loc['Median', 'log_loss'], spatial_summary_0.loc['Std Dev', 'log_loss'], spatial_summary_0.loc['Min (Worst)', 'log_loss'], spatial_summary_0.loc['Max (Best)', 'log_loss'], spatial_summary_0.loc['Q1 (25%)', 'log_loss'], spatial_summary_0.loc['Q3 (75%)', 'log_loss'])
+add_result_row(zeroes_pct, 'Random', 'auc', random_summary_0.loc['Mean', 'auc'], random_summary_0.loc['Median', 'auc'], random_summary_0.loc['Std Dev', 'auc'], random_summary_0.loc['Min (Worst)', 'auc'], random_summary_0.loc['Max (Best)', 'auc'], random_summary_0.loc['Q1 (25%)', 'auc'], random_summary_0.loc['Q3 (75%)', 'auc'])
+add_result_row(zeroes_pct, 'Random', 'precision', random_summary_0.loc['Mean', 'precision'], random_summary_0.loc['Median', 'precision'], random_summary_0.loc['Std Dev', 'precision'], random_summary_0.loc['Min (Worst)', 'precision'], random_summary_0.loc['Max (Best)', 'precision'], random_summary_0.loc['Q1 (25%)', 'precision'], random_summary_0.loc['Q3 (75%)', 'precision'])
+add_result_row(zeroes_pct, 'Random', 'accuracy', random_summary_0.loc['Mean', 'accuracy'], random_summary_0.loc['Median', 'accuracy'], random_summary_0.loc['Std Dev', 'accuracy'], random_summary_0.loc['Min (Worst)', 'accuracy'], random_summary_0.loc['Max (Best)', 'accuracy'], random_summary_0.loc['Q1 (25%)', 'accuracy'], random_summary_0.loc['Q3 (75%)', 'accuracy'])
+add_result_row(zeroes_pct, 'Random', 'log_loss', random_summary_0.loc['Mean', 'log_loss'], random_summary_0.loc['Median', 'log_loss'], random_summary_0.loc['Std Dev', 'log_loss'], random_summary_0.loc['Min (Worst)', 'log_loss'], random_summary_0.loc['Max (Best)', 'log_loss'], random_summary_0.loc['Q1 (25%)', 'log_loss'], random_summary_0.loc['Q3 (75%)', 'log_loss'])
+add_result_row(zeroes_pct, 'K fold', 'auc', spatial_summary_0.loc['Mean', 'auc'], spatial_summary_0.loc['Median', 'auc'], spatial_summary_0.loc['Std Dev', 'auc'], spatial_summary_0.loc['Min (Worst)', 'auc'], spatial_summary_0.loc['Max (Best)', 'auc'], spatial_summary_0.loc['Q1 (25%)', 'auc'], spatial_summary_0.loc['Q3 (75%)', 'auc'])
+add_result_row(zeroes_pct, 'K fold', 'precision', spatial_summary_0.loc['Mean', 'precision'], spatial_summary_0.loc['Median', 'precision'], spatial_summary_0.loc['Std Dev', 'precision'], spatial_summary_0.loc['Min (Worst)', 'precision'], spatial_summary_0.loc['Max (Best)', 'precision'], spatial_summary_0.loc['Q1 (25%)', 'precision'], spatial_summary_0.loc['Q3 (75%)', 'precision'])
+add_result_row(zeroes_pct, 'K fold', 'accuracy', spatial_summary_0.loc['Mean', 'accuracy'], spatial_summary_0.loc['Median', 'accuracy'], spatial_summary_0.loc['Std Dev', 'accuracy'], spatial_summary_0.loc['Min (Worst)', 'accuracy'], spatial_summary_0.loc['Max (Best)', 'accuracy'], spatial_summary_0.loc['Q1 (25%)', 'accuracy'], spatial_summary_0.loc['Q3 (75%)', 'accuracy'])
+add_result_row(zeroes_pct, 'K fold', 'log_loss', spatial_summary_0.loc['Mean', 'log_loss'], spatial_summary_0.loc['Median', 'log_loss'], spatial_summary_0.loc['Std Dev', 'log_loss'], spatial_summary_0.loc['Min (Worst)', 'log_loss'], spatial_summary_0.loc['Max (Best)', 'log_loss'], spatial_summary_0.loc['Q1 (25%)', 'log_loss'], spatial_summary_0.loc['Q3 (75%)', 'log_loss'])
 
 
 # the goal here is to load a csv every time we run this script except the first (when we have 0% 0s) and then append the results of the current set of 0s to it. This is very ugly and brittle and should be replaced soon.
