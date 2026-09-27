@@ -90,7 +90,7 @@ output_directory = base_directory + "/output/figures"
 
 # if debug == True:
 res = 0.01
-location = "Minnesota"
+location = "US"
 parcel_check = False
 zeroes = 4.0
 suffix = ""
@@ -135,6 +135,16 @@ print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix))
 
 
 ###### --- END BOILERPLATE --- ######
+
+lat_lon_robustness = True
+
+if lat_lon_robustness == True:
+    base_clf = RandomForestClassifier()
+    clf = RandomForestClassifier()
+
+else:
+    base_clf = LogisticRegression(max_iter=1000, C=1.0, random_state=123)
+
 
 
 
@@ -268,20 +278,24 @@ for i in range(1,11):
 percentiles = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
 # 2. Create the list of feature columns matching the Axx_pxx format
-feature_cols = ['lat','lon']
-'''
-for i in range(64):
-    # Format band name to A00, A01... A63
-    band_name = f"A0{i}" if i < 10 else f"A{i}"
 
-    for p in percentiles:
-        # Construct the column name like A00_p30
-        col_name = f"{band_name}_p{p}"
 
-        # Only add it if it actually exists in your merged dataframe
-        if col_name in federal_prj.columns:
-            feature_cols.append(col_name)
-'''
+if lat_lon_robustness == True:
+    feature_cols = ['lat','lon']
+
+else:
+    for i in range(64):
+        # Format band name to A00, A01... A63
+        band_name = f"A0{i}" if i < 10 else f"A{i}"
+
+        for p in percentiles:
+            # Construct the column name like A00_p30
+            col_name = f"{band_name}_p{p}"
+
+            # Only add it if it actually exists in your merged dataframe
+            if col_name in federal_prj.columns:
+                feature_cols.append(col_name)
+
 # 3. Define your target variable
 y = federal_prj['indicator']
 
@@ -302,13 +316,18 @@ The next bits are for random: turns it into a logistic (binary) regression, rand
 """
 
 # 1. Define your base model
-
+# IMPORTANT: this changes the model we're evaluating. RandomForestClassifier is for the lat/lon robustness check, while LogisticRegression is for the actual model we're using. These are commented out because I've declared them as variables at the top of the script but I'm not sure that's a good idea yet.
 #base_clf = LogisticRegression(max_iter=1000, C=1.0, random_state=123)
-base_clf = RandomForestClassifier()
+# base_clf = RandomForestClassifier()
 
 
 # Wrap it with FixedThresholdClassifier -- changes by what share of random zeros we have
-custom_threshold_clf = FixedThresholdClassifier(base_clf, threshold=0.5)
+
+if lat_lon_robustness == True:
+    custom_threshold_clf = RandomForestClassifier()
+
+else:
+    custom_threshold_clf = FixedThresholdClassifier(base_clf, threshold=0.5)
 
 # --- 2. Keep the Cross-Validation Split ---
 # kf remains the same (Random KFold)
@@ -345,7 +364,13 @@ plt.close('all')
 # --- 1. Setup ---
 # commented this out because it redeclared base_clf with the exact same arguments it was initially declared with
 # base_clf = LogisticRegression(max_iter=1000, C=1.0, random_state=123)
-clf = FixedThresholdClassifier(base_clf, threshold=0.5)
+
+if lat_lon_robustness == True:
+    clf = RandomForestClassifier()
+
+else:
+    clf = FixedThresholdClassifier(base_clf, threshold=0.5)
+
 cv = KFold(n_splits=10, shuffle=True, random_state=123)
 
 tprs = []
@@ -477,7 +502,11 @@ y = federal_prj_filtered['indicator']
 groups = federal_prj_filtered['folds']
 
 logo = LeaveOneGroupOut()
-clf = LogisticRegression(max_iter=5000, C=1.0, random_state=123)
+
+if lat_lon_robustness == True:
+    clf = RandomForestClassifier()
+else:
+    clf = LogisticRegression(max_iter=5000, C=1.0, random_state=123)
 
 # Lists to store metrics for each fold
 aucs, accs, precs, log_losses = [], [], [], []
@@ -650,7 +679,13 @@ else:
 
 # FIX: Use a fresh LogisticRegression estimator.
 # We add stability settings (max_iter) and set regularization (C) to default.
-clf = FixedThresholdClassifier(base_clf, threshold=0.5)
+
+
+if lat_lon_robustness == True:
+   clf = RandomForestClassifier()
+
+else:
+    clf = FixedThresholdClassifier(base_clf, threshold=0.5)
 
 # Initiate the Leave One Group Out cross-validator
 group_cvs = LeaveOneGroupOut()

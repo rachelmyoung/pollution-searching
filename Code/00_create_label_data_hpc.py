@@ -368,7 +368,7 @@ else:
 
     region_gdf[["id", "name", "geometry"]]
 
-    print(f"Shape (row, col): {region_gdf_gdf.shape}")
+    print(f"Shape (row, col): {region_gdf.shape}")
 
 ### CREATING THE GRID ###
 region_grid = create_grid(
