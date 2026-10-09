@@ -86,13 +86,13 @@ debug: bool = True
 base_directory = "/projects/standard/rmyoung/shared/mosaiks"
 scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
 input_path = base_directory + "/output/gee_container"
-output_directory = base_directory + "/output/figures"
+output_directory = base_directory + "/output/intermediate"
 
 # if debug == True:
 res = 0.01
-location = "US"
+location = "Minnesota"
 parcel_check = False
-zeroes = 4.0
+zeroes = 2.0
 suffix = ""
 '''
 else:
@@ -136,7 +136,9 @@ print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix))
 
 ###### --- END BOILERPLATE --- ######
 
-lat_lon_robustness = True
+lat_lon_robustness = False
+random_forest = True
+
 
 if lat_lon_robustness == True:
     base_clf = RandomForestClassifier()
@@ -145,22 +147,14 @@ if lat_lon_robustness == True:
 else:
     base_clf = LogisticRegression(max_iter=1000, C=1.0, random_state=123)
 
+print("IS THIS THING ON? 1")
 
-
-
-today_date = datetime.date.today().strftime("%Y-%m-%d")
-
-
-#------USER INPUT--------#
-#Input the folder path and file list where your GEE featurized 0% random 0s .csv label files are stored
-
-file_pattern = base_directory + "/output/" + project_file + "_combinedlabels" + ".csv" #name pattern of files from GEE here
+file_pattern = base_directory + "/output/gee_container/GEE_featurization_" + project_file + "_*.csv"
 file_list = glob.glob(file_pattern)
-
-
+    
+print("IS THIS THING ON? 2")
 
 print(f"Found {len(file_list)} files to combine.")
-
 #Read each file into a list of DataFrames
 df_list = [pd.read_csv(f) for f in file_list]
 
@@ -172,6 +166,15 @@ print(f"Final combined row count: {len(full_df)}")
 full_df.head()
 
 gdf_test=full_df
+
+
+today_date = datetime.date.today().strftime("%Y-%m-%d")
+
+
+
+
+
+
 
 #Global list to store all results for df_long
 all_results_data = []
@@ -193,16 +196,17 @@ gdf_test = full_df.copy()
 # First, ensure gdf_test is a GeoDataFrame, potentially converting it.
 if not isinstance(gdf_test, gpd.GeoDataFrame) or 'geometry' not in gdf_test.columns:
     print("FIXING: Converting gdf_test from DataFrame to GeoDataFrame.")
+    
+    if lat_lon_robustness == False:
+        # 1. Define bands (assuming they start with 'A') THIS IS GEE DEPENDENT!
+        bands = [col for col in gdf_test.columns if col.startswith('A')]
 
-    # 1. Define bands (assuming they start with 'A') THIS IS GEE DEPENDENT!
-    bands = [col for col in gdf_test.columns if col.startswith('A')]
-
-    # 2. DROP NaN ROWS HERE
-    initial_len = len(gdf_test)
-    gdf_test = gdf_test.dropna(subset=bands).reset_index(drop=True)
-    dropped = initial_len - len(gdf_test)
-    if dropped > 0:
-        print(f"Dropped {dropped} rows with NaN satellite features.")
+        # 2. DROP NaN ROWS HERE
+        initial_len = len(gdf_test)
+        gdf_test = gdf_test.dropna(subset=bands).reset_index(drop=True)
+        dropped = initial_len - len(gdf_test)
+        if dropped > 0:
+            print(f"Dropped {dropped} rows with NaN satellite features.")
 
     # 3. Recreate the GeoDataFrame structure
     gdf_test = gpd.GeoDataFrame(
@@ -279,7 +283,7 @@ percentiles = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
 # 2. Create the list of feature columns matching the Axx_pxx format
 
-
+feature_cols = []
 if lat_lon_robustness == True:
     feature_cols = ['lat','lon']
 
@@ -793,8 +797,8 @@ add_result_row(zeroes_pct, 'K fold', 'log_loss', spatial_summary_0.loc['Mean', '
 
 df_long = pd.DataFrame(all_results_data)
 
-results_filename = f'{project_file}_results.csv'
-results_full_path = os.path.join(scratch_directory, results_filename)
+results_filename = f'{project_file}_rfmainmodel_results.csv'
+results_full_path = os.path.join(output_directory, results_filename)
 df_long.to_csv(results_full_path, index=False)
 
 

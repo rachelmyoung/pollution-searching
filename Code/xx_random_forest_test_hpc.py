@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 
 
 ###### --- START BOILERPLATE --- ######
-debug: bool = False
+debug: bool = True
 
 ### ACCEPTING ARGUMENTS FROM SHELL SCRIPT ###
 
@@ -45,24 +45,33 @@ debug: bool = False
 base_directory = "/projects/standard/rmyoung/shared/mosaiks"
 scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
 input_path = base_directory + "/output/gee_container"
-output_path = base_directory + "/output/figures"
+output_directory = base_directory + "/data/intermediate/performance_results"
 
-if debug == True:
-    res = 0.1
-    location = "Minnesota"
-    parcel_check = False
-    zeroes = 1.0
-    suffix = ""
-
+# if debug == True:
+res = 0.01
+location = "US"
+parcel_check = False
+zeroes = 2.0
+suffix = "" 
+'''
 else:
     res = float(sys.argv[1])
+    print("Arg 1 is " + str(sys.argv[1]))
+    
     location = str(sys.argv[2])
+    print("Arg 2 is " + str(sys.argv[2]))
+    
     parcel_check = str(sys.argv[3]).lower() == "true"
-    zeroes = float(sys.argv[4])
-    suffix = str(sys.argv[5])
+    print("Arg 3 is " + str(sys.argv[3]))
+   
+    zeroes = float((sys.argv[4]).replace(",", ""))
+    print("Arg 4 is " + str(sys.argv[4]))
 
-res_string = str(res)
-zeroes_string = str(int(zeroes)*100)
+    suffix = ""
+'''
+res_string = str(int(res*100))
+zeroes_pct = int(zeroes*100)
+zeroes_string = str(zeroes_pct)
 
 buff = (res*5)/10
 round_value = abs((Decimal(res_string).as_tuple().exponent) - 1)
@@ -77,60 +86,92 @@ else:
 #NAMING THE FILE
 project_file = location + "_r" + res_string + "_z" + zeroes_string + suffix
 
-###### --- END BOILERPLATE --- ######
-
-
 print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
 print("Location value is " + str(location) + " and the type is " + str(type(location)))
 print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
+print("Zeroes value is " + str(zeroes) + " and the type is " + str(type(zeroes)))
+print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix)))
+
+
+###### --- END BOILERPLATE --- ######
+
+output_suffix = "_rfmainmodel" #_rflatlon or _rfmainmodel 
+
+if output_suffix == "_rflatlon":
+    robustness_check = True
+elif output_suffix == "_rfmainmodel":
+    robustness_check = False
+else:
+    raise Exception("Check suffix")
 
 
 ##### ===== SET UP DATA FOR CLASSIFIER AND TESTING ===== #####
 
 #------USER INPUT--------#
 
-combined_labels_filename = base_directory + "/output/" + project_file + "_combinedlabels" + ".csv"
 
-input_path = combined_labels_filename
+if robustness_check == True:
+    print("ROBUSTNESS CHECK VERSION")
+    folder_path = base_directory + "/output/" + project_file + "_combinedlabels" + ".csv"
+    training_labels = pd.read_csv(folder_path)
+    training_labels.head()
+    gdf_test = training_labels
 
-'''
-#input the folder path where your GEE .csv files are stored
-folder_path = input_path
-file_pattern = os.path.join(folder_path, 'GEE_featurization_2026-09-17_9_*.csv') #name pattern of files from GEE 	
-file_list = glob.glob(file_pattern) 
+else:
+    print("MAIN MODEL VERSION")
+    file_pattern = base_directory + "/output/gee_container/GEE_featurization_" + project_file + "_*.csv" #name pattern of files from GEE here
+    file_list = glob.glob(file_pattern) 
+    df_list = [pd.read_csv(f) for f in file_list]
+    print(len(df_list))
+    full_df = pd.concat(df_list, ignore_index=True)
+    print(f"Final combined row count: {len(full_df)}")
+    full_df.head()
+    gdf_test = full_df
 
-df_list = [pd.read_csv(f) for f in file_list]
+if robustness_check == True:
+    sample_data = np.column_stack((
+        training_labels['lat'],
+        training_labels['lon']
+    ))
 
-print(len(df_list))
+    label_data = training_labels['indicator']
+    
+    X = sample_data
+    y = label_data
 
-full_df = pd.concat(df_list, ignore_index=True)
+else:
+    feature_cols = [col for col in gdf_test.columns if col not in [
+        "A00_mean", "A63_mean", "A62_mean", "A61_mean", "A60_mean", "A59_mean",
+        "A58_mean", "A57_mean", "A56_mean", "A55_mean", "A54_mean", "A53_mean", "A52_mean",
+        "A51_mean", "A50_mean", "A49_mean", "A48_mean", "A47_mean", "A46_mean", "A45_mean",
+        "A44_mean", "A43_mean", "A42_mean", "A41_mean", "A40_mean", "A39_mean", "A38_mean",
+        "A37_mean", "A36_mean", "A35_mean", "A34_mean", "A33_mean", "A32_mean", "A31_mean",
+        "A30_mean", "A29_mean", "A28_mean", "A27_mean", "A26_mean", "A25_mean", "A24_mean",
+        "A23_mean", "A22_mean", "A21_mean", "A20_mean", "A19_mean", "A18_mean", "A17_mean",
+        "A16_mean", "A15_mean", "A14_mean", "A13_mean", "A12_mean", "A11_mean", "A10_mean",
+        "A09_mean", "A08_mean", "A07_mean", "A06_mean", "A05_mean", "A04_mean", "A03_mean",
+        "A02_mean", "A01_mean",
+        "Unnamed: 0", "system:index", "indicator", "lat", "lon", "Number", "number", ".geo"
+        ]
+                ]
 
-print(f"Final combined row count: {len(full_df)}")
-full_df.head()
-'''
+    y_var = "indicator"
 
-
-training_labels = pd.read_csv(input_path)
-training_labels.head()
-
-sample_data = np.column_stack((
-    training_labels['lat'],
-    training_labels['lon']
-))
-
-label_data = training_labels['indicator']
-
-
+    X = gdf_test[feature_cols]
+    y = gdf_test[y_var]
+    c = gdf_test[["lon", "lat"]]
+    
 ##### ===== Sets up testing ===== #####
-X = sample_data
-y = label_data
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+if robustness_check == True:
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+else:
+    X_train, X_test, y_train, y_test, c_train, c_test = train_test_split(
+    X, y, c, test_size=0.2, random_state=42
 )
 
-print("Sample Data shape is " + str(sample_data.shape))
-print("Label Data shape is " + str(label_data.shape))
 
 
 ##### ===== CREATE THE CLASSIFIER ===== #####
@@ -148,7 +189,7 @@ from sklearn.metrics import (
 import matplotlib.pyplot as plt
 
 # 1. Fit the model on training data
-clf = clf.fit(X_train, y_train)
+clf = clf.fit(X_train, y_train.values.ravel()) 
 
 # 2. Generate Predictions on the Test Set
 # Probabilities are needed for ROC and Log Loss
@@ -189,14 +230,14 @@ plt.grid(alpha=0.3)
 #------USER INPUT--------#
 #Save image to your Drive folder: edit the output folder path and file name as needed
 today_date = datetime.date.today().strftime("%Y-%m-%d")
-output_folder = output_path #output folder path
+output_folder = output_directory #output folder path
 
-output_plot_filename = output_path + "/ROC_curve_" + project_file + ".pdf" #rename as needed
+output_plot_filename = output_directory + "/ROC_curve_" + project_file + output_suffix + ".pdf" #rename as needed
 
 plt.savefig(output_plot_filename, dpi=300, bbox_inches='tight')
 
 #Save text results to Drive folder
-output_text_filename = output_path + "/performance_results_" + project_file + ".txt" #rename as needed
+output_text_filename = output_directory + "/performance_results_" + project_file + output_suffix + ".txt" #rename as needed
 with open(output_text_filename, 'w') as f:
     f.write("--- Test Set Performance ---")
     f.write(classification_report(y_test, y_pred))
@@ -204,6 +245,30 @@ with open(output_text_filename, 'w') as f:
     f.write(f"{'Accuracy:':<12} {acc_val:.4f}\n")
     f.write(f"{'Precision:':<12} {prec_val:.4f}\n")
     f.write(f"{'Log Loss:':<12} {loss_val:.4f}\n")
+
+
+#save results as csv so they can be passed to other scripts
+
+dict_performance_results = {
+    "Region": location,
+    "Percent 0s": zeroes,
+    "ROC-AUC": auc_val,
+    "Accuracy": acc_val,
+    "Precision": prec_val,
+    "Log Loss": loss_val
+}
+
+df_performance_results = pd.DataFrame(dict_performance_results, index=[0])
+
+output_csv_filename = output_directory + "/performance_results_" + project_file + output_suffix + ".csv"
+
+
+
+df_performance_results.to_csv(output_csv_filename, index=False)
+
+print("csv performance results saved to " + str(output_csv_filename))
+
+
 
 
 plt.show()
