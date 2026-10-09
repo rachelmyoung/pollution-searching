@@ -50,7 +50,7 @@ debug: bool = True
 # This should almost never need to change
 base_directory = "/projects/standard/rmyoung/shared/mosaiks"
 scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
-input_path = base_directory + "/output/gee_container"
+input_path = base_directory + "/output/intermediate"
 output_directory = base_directory + "/output/figures"
 
 # if debug == True:
@@ -101,7 +101,7 @@ print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix))
 
 ###### --- END BOILERPLATE --- ######
 
-testing_suffix = "no_threshold_or_logistic"
+testing_suffix = "rf_mainmodel"
 
 ###### --- GENERATE SPATIAL KFOLD RESULTS FILENAMES --- ######
 
@@ -110,9 +110,9 @@ zeroes_list = [0, 1, 5, 10, 25, 50, 100, 200, 300, 400]
 results_frames = {}
 
 for zero in zeroes_list:
-    results_filename = results_stem + "_z" + str(zero) + suffix + "_results.csv"
+    results_filename = results_stem + "_z" + str(zero) + suffix + "_rfmainmodel_results.csv"
     print(results_filename)
-    results_full_path = os.path.join(scratch_directory, results_filename)
+    results_full_path = os.path.join(input_path, results_filename)
     results_df_name = f"df_{zero}"
     results_frames[results_df_name] = pd.read_csv(results_full_path)
     print(f"head at {zero}% zeroes is:")
@@ -301,7 +301,7 @@ plt.figure(figsize=(14, 6))
 plt.subplot(1, 2, 1)
 plt.plot(df_results['Randomness_%'], df_results['Accuracy'], marker='o', label='Accuracy', color='blue', linewidth=2)
 plt.plot(df_results['Randomness_%'], df_results['AUC'], marker='s', label='ROC-AUC', color='green', linewidth=2)
-plt.title('Performance vs. Dataset Randomness\n(Tuned Cut-off Threshold)', fontsize=14)
+plt.title('Performance vs. Dataset Randomness', fontsize=14) # \n(Tuned Cut-off Threshold)
 plt.xlabel('Randomness Percentage (%)', fontsize=12)
 plt.ylabel('Score', fontsize=12)
 plt.legend()
