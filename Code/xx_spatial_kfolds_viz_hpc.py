@@ -46,58 +46,27 @@ debug: bool = True
 
 ### ACCEPTING ARGUMENTS FROM SHELL SCRIPT ###
 
-### DIRECTORY ###
-# This should almost never need to change
-base_directory = "/projects/standard/rmyoung/shared/mosaiks"
-scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
-input_path = base_directory + "/output/intermediate"
-output_directory = base_directory + "/output/figures"
+###### --- START BOILERPLATE --- ######
+res = config.res
+location = config.location
+parcel_check = config.parcel_check
+zeroes = config.zeroes
+suffix = config.suffix
 
-# if debug == True:
-res = 0.01
-location = "US"
-parcel_check = False
-zeroes = 0.01
-suffix = ""
-'''
-else:
-    res = float(sys.argv[1])
-    print("Arg 1 is " + str(sys.argv[1]))
-    
-    location = str(sys.argv[2])
-    print("Arg 2 is " + str(sys.argv[2]))
-    
-    parcel_check = str(sys.argv[3]).lower() == "true"
-    print("Arg 3 is " + str(sys.argv[3]))
-   
-    zeroes = float((sys.argv[4]).replace(",", ""))
-    print("Arg 4 is " + str(sys.argv[4]))
+buff = config.buff
+round_value = config.round_value
 
-    suffix = ""
-'''
-res_string = str(int(res*100))
-zeroes_string = str(int(zeroes*100))
+project_file = config.project_file
 
-buff = (res*5)/10
-round_value = abs((Decimal(res_string).as_tuple().exponent) - 1)
+scratch_directory = "/scratch.local"
 
-if location == "Minnesota":
-    poi_path = base_directory + "/raw/mn_superfund_spreadsheet.csv"
-    parcel_path = base_directory + "/mn_parcels/mn_parcels.gpkg"
-
-else:
-    poi_path = base_directory + "/raw/federal_superfund_spreadsheet.csv"
-
-#NAMING THE FILE
-project_file = location + "_r" + res_string + "_z" + zeroes_string + suffix
-results_stem = location + "_r" + res_string
+poi_path = config.raw_data 
 
 print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
 print("Location value is " + str(location) + " and the type is " + str(type(location)))
 print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
 print("Zeroes value is " + str(zeroes) + " and the type is " + str(type(zeroes)))
 print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix)))
-
 
 ###### --- END BOILERPLATE --- ######
 
