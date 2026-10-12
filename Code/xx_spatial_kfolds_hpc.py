@@ -77,62 +77,26 @@ from matplotlib.ticker import ScalarFormatter
 
 
 ###### --- START BOILERPLATE --- ######
-debug: bool = True
+res = config.res
+location = config.location
+parcel_check = config.parcel_check
+zeroes = config.zeroes
+suffix = config.suffix
 
-### ACCEPTING ARGUMENTS FROM SHELL SCRIPT ###
+buff = config.buff
+round_value = config.round_value
 
-### DIRECTORY ###
-# This should almost never need to change
-base_directory = "/projects/standard/rmyoung/shared/mosaiks"
-scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
-input_path = base_directory + "/output/gee_container"
-output_directory = base_directory + "/output/intermediate"
+project_file = config.project_file
 
-# if debug == True:
-res = 0.01
-location = "Minnesota"
-parcel_check = False
-zeroes = 2.0
-suffix = ""
-'''
-else:
-    res = float(sys.argv[1])
-    print("Arg 1 is " + str(sys.argv[1]))
-    
-    location = str(sys.argv[2])
-    print("Arg 2 is " + str(sys.argv[2]))
-    
-    parcel_check = str(sys.argv[3]).lower() == "true"
-    print("Arg 3 is " + str(sys.argv[3]))
-   
-    zeroes = float((sys.argv[4]).replace(",", ""))
-    print("Arg 4 is " + str(sys.argv[4]))
+scratch_directory = "/scratch.local"
 
-    suffix = ""
-'''
-res_string = str(int(res*100))
-zeroes_pct = int(zeroes*100)
-zeroes_string = str(zeroes_pct)
-
-buff = (res*5)/10
-round_value = abs((Decimal(res_string).as_tuple().exponent) - 1)
-
-if location == "Minnesota":
-    poi_path = base_directory + "/raw/mn_superfund_spreadsheet.csv"
-    parcel_path = base_directory + "/mn_parcels/mn_parcels.gpkg"
-
-else:
-    poi_path = base_directory + "/raw/federal_superfund_spreadsheet.csv"
-
-#NAMING THE FILE
-project_file = location + "_r" + res_string + "_z" + zeroes_string + suffix
+poi_path = config.raw_data 
 
 print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
 print("Location value is " + str(location) + " and the type is " + str(type(location)))
 print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
 print("Zeroes value is " + str(zeroes) + " and the type is " + str(type(zeroes)))
 print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix)))
-
 
 ###### --- END BOILERPLATE --- ######
 

@@ -21,15 +21,37 @@ from datetime import date
 from datetime import datetime
 from decimal import Decimal
 
+from config import config
+
 print("DEBUG MESSAGE TO MAKE SURE GIT STUFF IS WORKING")
 
 ###### --- START BOILERPLATE --- ######
-debug: bool = False
+res = config.res
+location = config.location
+parcel_check = config.parcel_check
+zeroes = config.zeroes
+suffix = config.suffix
 
-### ACCEPTING ARGUMENTS FROM SHELL SCRIPT ###
+buff = config.buff
+round_value = config.round_value
+
+project_file = config.project_file
+
+scratch_directory = "/scratch.local"
+
+poi_path = config.raw_data 
+
+print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
+print("Location value is " + str(location) + " and the type is " + str(type(location)))
+print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
+print("Zeroes value is " + str(zeroes) + " and the type is " + str(type(zeroes)))
+print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix)))
+
+###### --- END BOILERPLATE --- ######
 
 ### DIRECTORY ###
-# This should almost never need to change
+# everything below should be safe to delete now that we have the config set up, but I am going to leave it here for now.
+'''
 base_directory = "/projects/standard/rmyoung/shared/mosaiks"
 scratch_directory = "/scratch.local" # experimental; will need to alter the shell script.
 input_path = base_directory + "/output/gee_container"
@@ -72,16 +94,8 @@ else:
 
 #NAMING THE FILE
 project_file = location + "_r" + res_string + "_z" + zeroes_string + suffix
+'''
 
-print("Resolution value is " + str(res) + " and the type is " + str(type(res)))
-print("Location value is " + str(location) + " and the type is " + str(type(location)))
-print("Parcel check value is " + str(parcel_check) + " and the type is " + str(type(parcel_check)))
-print("Zeroes value is " + str(zeroes) + " and the type is " + str(type(zeroes)))
-print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix)))
-
-
-
-###### --- END BOILERPLATE --- ######
 
 ###### ----- FUNCTIONS ----- ######
 
@@ -694,12 +708,14 @@ print(final_labels.head())
 ##### ----- SAVE THE COMBINED LABELS ----- #####
 print("DEBUG MESSAGE  TO SEE IF SCRIPT GETS TO SAVING STEP")
 
-combined_labels_filename = base_directory + "/output/" + project_file + "_combinedlabels" + ".csv"
-final_labels.to_csv(combined_labels_filename, index=True)
+combined_labels_directory = config.combined_labels_directory
+final_labels.to_csv(combined_labels_directory, index=True)
 
-print("Combined labels saved to: " + str(combined_labels_filename))
+print("Combined labels saved to: " + str(combined_labels_directory))
 
 print("Label creation complete!")
+
+print("testing that changes to script in interactive session are going through")
 
 
 ##### ----- PRINT TEST MAP ----- #####
