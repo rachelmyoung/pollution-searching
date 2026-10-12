@@ -32,7 +32,7 @@ from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
 
-
+from config import config
 
 ###### --- START BOILERPLATE --- ######
 res = config.res
