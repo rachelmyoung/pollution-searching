@@ -45,7 +45,12 @@ print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix))
 
 ###### --- END BOILERPLATE --- ######
 
-
+def make_df(results : pd.DataFrame):
+    
+    feature_path = os.path.join(input_path, results)
+    created_csv = pd.read_csv(feature_path)
+    
+    return created_csv
 
 
 US200_feature_results = "US_r1_z200_rforestfeatures_results.csv"
@@ -74,12 +79,6 @@ MN0_latlon_df = make_df(MN0_latlon_results)
 
 
 
-def make_df(results : pd.DataFrame):
-    
-    feature_path = os.path.join(input_path, results)
-    created_csv = pd.read_csv(feature_path)
-    
-    return created_csv
 
 '''
 US200_feature_path = os.path.join(input_path, US200_feature_results)

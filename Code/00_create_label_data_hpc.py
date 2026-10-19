@@ -708,8 +708,8 @@ print(final_labels.head())
 ##### ----- SAVE THE COMBINED LABELS ----- #####
 print("DEBUG MESSAGE  TO SEE IF SCRIPT GETS TO SAVING STEP")
 
-combined_labels_directory = config.combined_labels_directory
-final_labels.to_csv(combined_labels_directory, index=True)
+
+final_labels.to_csv(config.combined_labels_path, index=True)
 
 print("Combined labels saved to: " + str(combined_labels_directory))
 

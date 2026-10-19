@@ -100,8 +100,10 @@ print("Suffix value is " + str(suffix) + " and the type is " + str(type(suffix))
 
 ###### --- END BOILERPLATE --- ######
 
+zeroes_pct = int(zeroes)
+
 lat_lon_robustness = False
-random_forest = True
+random_forest = False 
 
 
 if lat_lon_robustness == True:
@@ -113,7 +115,7 @@ else:
 
 print("IS THIS THING ON? 1")
 
-file_pattern = base_directory + "/output/gee_container/GEE_featurization_" + project_file + "_*.csv"
+file_pattern = config.featurized_labels_path
 file_list = glob.glob(file_pattern)
     
 print("IS THIS THING ON? 2")
@@ -326,12 +328,13 @@ random_n_scores = cross_validate(
 print("--- Cross-Validation Results (Classification) ---")
 print(random_n_scores)
 
+
 """Generation of cross-validated ROC curve- adapted from https://scikit-learn.org/stable/auto_examples/model_selection/plot_roc_crossval.html"""
 
 plt.close('all')
 # --- 1. Setup ---
 # commented this out because it redeclared base_clf with the exact same arguments it was initially declared with
-# base_clf = LogisticRegression(max_iter=1000, C=1.0, random_state=123)
+base_clf = LogisticRegression(max_iter=1000, C=1.0, random_state=123)
 
 if lat_lon_robustness == True:
     clf = RandomForestClassifier()
@@ -348,9 +351,15 @@ mean_fpr = np.linspace(0, 1, 100)
 fig, ax = plt.subplots(figsize=(8, 8))
 
 # --- 2. The Cross-Validation Loop ---
+
+prediction_dict = {}
+prob_clf = base_clf
+
 for fold, (train, test) in enumerate(cv.split(X, y)):
     # Fit on training data
     clf.fit(X.iloc[train], y.iloc[train].values.ravel())
+    prob_clf.fit(X.iloc[train], y.iloc[train].values.ravel())
+    
 
     # Generate the curve for this fold
     viz = RocCurveDisplay.from_estimator(
@@ -480,11 +489,20 @@ else:
 aucs, accs, precs, log_losses = [], [], [], []
 skipped_folds = []
 
+test_probabilities = []
+test_true_labels = []
+test_folds = []
+test_indices = []
+predicted_labels = []
+
 print(f"Starting Spatial CV on {len(X)} samples...\n")
+
+probs_df = pd.DataFrame()
 
 for train_idx, test_idx in logo.split(X, y, groups=groups):
     current_fold = groups.iloc[test_idx].unique()[0]
     y_test = y.iloc[test_idx]
+    print("current fold is " + str(current_fold))
 
     # 1. Skip check for single-label test sets
     if len(np.unique(y_test)) < 2:
@@ -498,6 +516,10 @@ for train_idx, test_idx in logo.split(X, y, groups=groups):
     # 3. Predict (Probabilities for AUC/Log-Loss, Classes for Acc/Precision)
     y_probs = clf.predict_proba(X.iloc[test_idx])[:, 1]
     y_pred = clf.predict(X.iloc[test_idx])
+    
+    # programmatically name a series of dataframes based on the fold, then concatenate them when the loop is done
+    # make sure they stay indexed to lat/lon, features, and actual label
+    # include boh y_probs and y_pred
 
     # 4. Calculate and store metrics
     aucs.append(roc_auc_score(y_test, y_probs))
@@ -507,6 +529,33 @@ for train_idx, test_idx in logo.split(X, y, groups=groups):
     log_losses.append(-log_loss(y_test, clf.predict_proba(X.iloc[test_idx])))
 
     print(f"Fold {current_fold}: PROCESSED (AUC: {aucs[-1]:.4f})")
+    
+    test_probabilities.append(y_probs)
+    test_folds.append(current_fold)
+    test_indices.append(test_idx)
+    test_true_labels.append(y_test)
+    predicted_labels.append(y_pred)
+
+print(test_probabilities)
+
+# --- Export predicted probabilities and associated features --- ###
+test_proba_export = pd.DataFrame({
+    "test index": test_indices,
+    "test folds": test_folds,
+    "predicted probabilities": test_probabilities,
+    "actual labels": test_true_labels,
+    "predicted labels": predicted_labels 
+})
+
+test_proba_export_expanded = test_proba_export.explode(["test index", "predicted probabilities", "actual labels", "predicted labels"])
+
+print("predicted probabilities and features with index")
+print(test_proba_export_expanded.head())
+
+proba_csv_name = os.path.join(config.performance_directory, project_file + "predicted_probabilities.csv")
+
+test_proba_export_expanded.to_csv(proba_csv_name, index=False)
+
 
 # --- Final Summary Table ---
 print(f"\n--- Final Results (Averages across {len(aucs)} folds) ---")
